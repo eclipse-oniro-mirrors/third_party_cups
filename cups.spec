@@ -1,7 +1,7 @@
 Name:    cups
 Epoch:   1
 Version: 2.2.8
-Release: 7
+Release: 8
 Summary: CUPS is the standards-based, open source printing system for linux operating systems.
 License: GPLv2+ and LGPLv2+ with exceptions and AML
 Url:     http://www.cups.org/
@@ -19,8 +19,6 @@ Patch5: cups-banners.patch
 Patch7: cups-no-export-ssllibs.patch
 Patch8: cups-direct-usb.patch
 Patch12: cups-eggcups.patch
-Patch13: cups-driverd-timeout.patch
-Patch15: cups-logrotate.patch
 Patch16: cups-usb-paperout.patch
 Patch19: cups-uri-compat.patch
 Patch22: cups-hp-deviceid-oid.patch
@@ -28,14 +26,12 @@ Patch24: cups-ricoh-deviceid-oid.patch
 Patch25: cups-systemd-socket.patch
 Patch30: cups-freebind.patch
 Patch35: cups-ipp-multifile.patch
-Patch36: cups-web-devices-timeout.patch
 Patch37: cups-synconclose.patch
 Patch38: cups-ypbind.patch
 Patch100: cups-lspp.patch
 Patch9: cups-lpr-help.patch
 Patch18: cups-filter-debug.patch
 Patch29: cups-dymo-deviceid.patch
-Patch40: cups-journal-history.patch
 Patch41: cups-accesslog-null.patch
 Patch42: cups-epson-A6-crash.patch
 Patch43: cups-ippvalidateattr-regression.patch
@@ -335,6 +331,12 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %doc %{_datadir}/%{name}/www/apple-touch-icon.png
 
 %changelog
+* Sat Jan 11 2020 openEuler Buildteam <buildteam@openeuler.org> - 2.2.8-8
+- Type:enhancement
+- ID:NA
+- SUG:NA
+- DESC: delete patches
+
 * Wed Sep 25 2019 gaoguanghui <gaoguanghui1@huawei.com> - 2.2.8-7
 - Type:cves
 - ID:CVE-2019-8675 CVE-2019-8696
