@@ -1,7 +1,7 @@
 Name:    cups
 Epoch:   1
 Version: 2.2.8
-Release: 8
+Release: 9
 Summary: CUPS is the standards-based, open source printing system for linux operating systems.
 License: GPLv2+ and LGPLv2+ with exceptions and AML
 Url:     http://www.cups.org/
@@ -39,6 +39,7 @@ Patch44: cups-ippeve-webui.patch
 Patch45: 0001-Fix-memory-leaks-found-by-Coverity-Issue-5375.patch
 Patch6000: CVE-2018-4300.patch
 Patch6001: CVE-2019-8675-CVE-2019-8696.patch 
+Patch6002: CVE-2019-2228.patch 
 
 Provides: cupsddk cupsddk-drivers cups-filesystem cups-client cups-ipptool cups-lpd
 Provides: lpd lpr /usr/bin/lpq /usr/bin/lpr /usr/bin/lp /usr/bin/cancel /usr/bin/lprm /usr/bin/lpstat
@@ -331,6 +332,12 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %doc %{_datadir}/%{name}/www/apple-touch-icon.png
 
 %changelog
+* Thu Mar 26 chenzhen <chenzhen44@huawei.com> - 2.2.8-9
+- Type:cves
+- ID:CVE-2019-2228
+- SUG:restart
+- DESC: fix CVE-2019-2228
+
 * Sat Jan 11 2020 openEuler Buildteam <buildteam@openeuler.org> - 2.2.8-8
 - Type:enhancement
 - ID:NA
