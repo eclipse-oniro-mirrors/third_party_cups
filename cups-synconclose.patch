@@ -1,6 +1,7 @@
-diff -up cups-2.0.2/conf/cups-files.conf.in.LGOyhq cups-2.0.2/conf/cups-files.conf.in
---- cups-2.0.2/conf/cups-files.conf.in.LGOyhq	2015-02-10 13:51:24.912193296 +0100
-+++ cups-2.0.2/conf/cups-files.conf.in	2015-02-10 13:52:49.400997262 +0100
+diff --git a/conf/cups-files.conf.in b/conf/cups-files.conf.in
+index f4230c9..6609831 100644
+--- a/conf/cups-files.conf.in
++++ b/conf/cups-files.conf.in
 @@ -7,7 +7,7 @@
  #FatalErrors @CUPS_FATAL_ERRORS@
  
@@ -10,10 +11,11 @@ diff -up cups-2.0.2/conf/cups-files.conf.in.LGOyhq cups-2.0.2/conf/cups-files.co
  
  # Default user and group for filters/backends/helper programs; this cannot be
  # any user or group that resolves to ID 0 for security reasons...
-diff -up cups-2.0.2/doc/help/man-cups-files.conf.html.LGOyhq cups-2.0.2/doc/help/man-cups-files.conf.html
---- cups-2.0.2/doc/help/man-cups-files.conf.html.LGOyhq	2015-02-10 13:52:49.400997262 +0100
-+++ cups-2.0.2/doc/help/man-cups-files.conf.html	2015-02-10 13:53:07.057747311 +0100
-@@ -136,7 +136,7 @@ The default is "/etc/cups".
+diff --git a/doc/help/man-cups-files.conf.html b/doc/help/man-cups-files.conf.html
+index 6144a16..b82117c 100644
+--- a/doc/help/man-cups-files.conf.html
++++ b/doc/help/man-cups-files.conf.html
+@@ -150,7 +150,7 @@ The default is "/var/run/cups" or "/etc/cups" depending on the platform.
  <dd style="margin-left: 5.0em">Specifies whether the scheduler calls
  <b>fsync</b>(2)
  after writing configuration or state files.
@@ -22,10 +24,11 @@ diff -up cups-2.0.2/doc/help/man-cups-files.conf.html.LGOyhq cups-2.0.2/doc/help
  <dt><a name="SystemGroup"></a><b>SystemGroup </b><i>group-name </i>[ ... <i>group-name</i> ]
  <dd style="margin-left: 5.0em">Specifies the group(s) to use for <i>@SYSTEM</i> group authentication.
  The default contains "admin", "lpadmin", "root", "sys", and/or "system".
-diff -up cups-2.0.2/man/cups-files.conf.man.in.LGOyhq cups-2.0.2/man/cups-files.conf.man.in
---- cups-2.0.2/man/cups-files.conf.man.in.LGOyhq	2015-02-10 13:52:49.400997262 +0100
-+++ cups-2.0.2/man/cups-files.conf.man.in	2015-02-10 13:53:23.753510964 +0100
-@@ -201,7 +201,7 @@ The default is "/etc/cups".
+diff --git a/man/cups-files.conf.man.in b/man/cups-files.conf.man.in
+index f5e6a9f..c3d8eeb 100644
+--- a/man/cups-files.conf.man.in
++++ b/man/cups-files.conf.man.in
+@@ -214,7 +214,7 @@ The default is "/var/run/cups" or "/etc/cups" depending on the platform.
  Specifies whether the scheduler calls
  .BR fsync (2)
  after writing configuration or state files.
@@ -34,15 +37,19 @@ diff -up cups-2.0.2/man/cups-files.conf.man.in.LGOyhq cups-2.0.2/man/cups-files.
  .\"#SystemGroup
  .TP 5
  \fBSystemGroup \fIgroup-name \fR[ ... \fIgroup-name\fR ]
-diff -up cups-2.0.2/scheduler/conf.c.LGOyhq cups-2.0.2/scheduler/conf.c
---- cups-2.0.2/scheduler/conf.c.LGOyhq	2015-02-10 13:51:24.991192177 +0100
-+++ cups-2.0.2/scheduler/conf.c	2015-02-10 13:52:49.401997248 +0100
-@@ -717,7 +717,7 @@ cupsdReadConfiguration(void)
+diff --git a/scheduler/conf.c b/scheduler/conf.c
+index 11c94d2..96993c7 100644
+--- a/scheduler/conf.c
++++ b/scheduler/conf.c
+@@ -735,7 +735,7 @@ cupsdReadConfiguration(void)
    RootCertDuration         = 300;
    Sandboxing               = CUPSD_SANDBOXING_STRICT;
    StrictConformance        = FALSE;
 -  SyncOnClose              = FALSE;
 +  SyncOnClose              = TRUE;
-   Timeout                  = DEFAULT_TIMEOUT;
+   Timeout                  = 900;
    WebInterface             = CUPS_DEFAULT_WEBIF;
  
+-- 
+2.23.0
+

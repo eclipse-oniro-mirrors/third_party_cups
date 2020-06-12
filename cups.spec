@@ -1,7 +1,7 @@
 Name:    cups
 Epoch:   1
-Version: 2.2.8
-Release: 9
+Version: 2.2.13
+Release: 1
 Summary: CUPS is the standards-based, open source printing system for linux operating systems.
 License: GPLv2+ and LGPLv2+ with exceptions and AML
 Url:     http://www.cups.org/
@@ -12,34 +12,27 @@ Source3: cups.logrotate
 Source4: ncp.backend
 Source5: macros.cups
 
-Patch1: cups-no-gzip-man.patch
-Patch2: cups-system-auth.patch
-Patch3: cups-multilib.patch
-Patch5: cups-banners.patch
-Patch7: cups-no-export-ssllibs.patch
-Patch8: cups-direct-usb.patch
-Patch12: cups-eggcups.patch
-Patch16: cups-usb-paperout.patch
-Patch19: cups-uri-compat.patch
-Patch22: cups-hp-deviceid-oid.patch
-Patch24: cups-ricoh-deviceid-oid.patch
-Patch25: cups-systemd-socket.patch
-Patch30: cups-freebind.patch
-Patch35: cups-ipp-multifile.patch
-Patch37: cups-synconclose.patch
-Patch38: cups-ypbind.patch
-Patch100: cups-lspp.patch
-Patch9: cups-lpr-help.patch
-Patch18: cups-filter-debug.patch
-Patch29: cups-dymo-deviceid.patch
-Patch41: cups-accesslog-null.patch
-Patch42: cups-epson-A6-crash.patch
-Patch43: cups-ippvalidateattr-regression.patch
-Patch44: cups-ippeve-webui.patch
-Patch45: 0001-Fix-memory-leaks-found-by-Coverity-Issue-5375.patch
-Patch6000: CVE-2018-4300.patch
-Patch6001: CVE-2019-8675-CVE-2019-8696.patch 
-Patch6002: CVE-2019-2228.patch 
+Patch1:  cups-no-gzip-man.patch
+Patch2:  cups-system-auth.patch
+Patch3:  cups-multilib.patch
+Patch4:  cups-banners.patch
+Patch5:  cups-no-export-ssllibs.patch
+Patch6:  cups-direct-usb.patch
+Patch7:  cups-eggcups.patch
+Patch8:  cups-usb-paperout.patch
+Patch9:  cups-uri-compat.patch
+Patch10: cups-hp-deviceid-oid.patch
+Patch11: cups-ricoh-deviceid-oid.patch
+Patch12: cups-systemd-socket.patch
+Patch13: cups-freebind.patch
+Patch14: cups-ipp-multifile.patch
+Patch15: cups-synconclose.patch
+Patch16: cups-ypbind.patch
+Patch17: cups-lspp.patch
+Patch18: cups-lpr-help.patch
+Patch19: cups-filter-debug.patch
+Patch20: cups-dymo-deviceid.patch
+Patch21: custom-option-keywords-did-not.patch
 
 Provides: cupsddk cupsddk-drivers cups-filesystem cups-client cups-ipptool cups-lpd
 Provides: lpd lpr /usr/bin/lpq /usr/bin/lpr /usr/bin/lp /usr/bin/cancel /usr/bin/lprm /usr/bin/lpstat
@@ -332,11 +325,17 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %doc %{_datadir}/%{name}/www/apple-touch-icon.png
 
 %changelog
-* Thu Mar 26 chenzhen <chenzhen44@huawei.com> - 2.2.8-9
+* Fri Jun 12 2020 hanhui <hanhui15@huawei.com> - 2.2.13-1
+- Type:enhancement
+- ID:NA
+- SUG:NA
+- DESC:upgrade to 2.2.13
+
+* Thu Mar 26 2020 gaihuiying <gaihuiying1@huawei.com> - 2.2.8-9
 - Type:cves
 - ID:CVE-2019-2228
 - SUG:restart
-- DESC: fix CVE-2019-2228
+- DESC:fix CVE-2019-2228
 
 * Sat Jan 11 2020 openEuler Buildteam <buildteam@openeuler.org> - 2.2.8-8
 - Type:enhancement
