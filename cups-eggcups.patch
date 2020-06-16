@@ -1,7 +1,21 @@
-diff -up cups-2.2.5/backend/ipp.c.eggcups cups-2.2.5/backend/ipp.c
---- cups-2.2.5/backend/ipp.c.eggcups	2017-10-13 20:22:26.000000000 +0200
-+++ cups-2.2.5/backend/ipp.c	2017-10-17 18:56:42.409024451 +0200
-@@ -149,6 +149,70 @@ static char		tmpfilename[1024] = "";
+diff --git a/backend/Makefile b/backend/Makefile
+index 48a1c66..342604f 100644
+--- a/backend/Makefile
++++ b/backend/Makefile
+@@ -263,7 +263,7 @@ dnssd:	dnssd.o ../cups/$(LIBCUPS) libbackend.a
+ 
+ ipp:	ipp.o ../cups/$(LIBCUPS) libbackend.a
+ 	echo Linking $@...
+-	$(LD_CC) $(LDFLAGS) -o ipp ipp.o libbackend.a $(LIBS)
++	$(LD_CC) $(LDFLAGS) -o ipp ipp.o libbackend.a $(LIBS) $(SERVERLIBS)
+ 	$(CODE_SIGN) -s "$(CODE_SIGN_IDENTITY)" $@
+ 	$(RM) http
+ 	$(LN) ipp http
+diff --git a/backend/ipp.c b/backend/ipp.c
+index 482d6f7..f37caee 100644
+--- a/backend/ipp.c
++++ b/backend/ipp.c
+@@ -152,6 +152,70 @@ static char		tmpfilename[1024] = "";
  static char		mandatory_attrs[1024] = "";
  					/* cupsMandatory value */
  
@@ -72,7 +86,7 @@ diff -up cups-2.2.5/backend/ipp.c.eggcups cups-2.2.5/backend/ipp.c
  
  /*
   * Local functions...
-@@ -1743,6 +1807,15 @@ main(int  argc,				/* I - Number of comm
+@@ -1755,6 +1819,15 @@ main(int  argc,				/* I - Number of command-line args */
        fprintf(stderr, "DEBUG: Print job accepted - job ID %d.\n", job_id);
      }
  
@@ -88,22 +102,11 @@ diff -up cups-2.2.5/backend/ipp.c.eggcups cups-2.2.5/backend/ipp.c
      ippDelete(response);
  
      if (job_canceled)
-diff -up cups-2.2.5/backend/Makefile.eggcups cups-2.2.5/backend/Makefile
---- cups-2.2.5/backend/Makefile.eggcups	2017-10-17 18:56:42.409024451 +0200
-+++ cups-2.2.5/backend/Makefile	2017-10-17 18:59:11.696781116 +0200
-@@ -262,7 +262,7 @@ dnssd:	dnssd.o ../cups/$(LIBCUPS) libbac
- 
- ipp:	ipp.o ../cups/$(LIBCUPS) libbackend.a
- 	echo Linking $@...
--	$(LD_CC) $(LDFLAGS) -o ipp ipp.o libbackend.a $(LIBS)
-+	$(LD_CC) $(LDFLAGS) -o ipp ipp.o libbackend.a $(LIBS) $(SERVERLIBS)
- 	$(RM) http
- 	$(LN) ipp http
- 
-diff -up cups-2.2.5/scheduler/subscriptions.c.eggcups cups-2.2.5/scheduler/subscriptions.c
---- cups-2.2.5/scheduler/subscriptions.c.eggcups	2017-10-13 20:22:26.000000000 +0200
-+++ cups-2.2.5/scheduler/subscriptions.c	2017-10-17 18:56:42.409024451 +0200
-@@ -1291,13 +1291,13 @@ cupsd_send_dbus(cupsd_eventmask_t event,
+diff --git a/scheduler/subscriptions.c b/scheduler/subscriptions.c
+index d2c6361..d42f855 100644
+--- a/scheduler/subscriptions.c
++++ b/scheduler/subscriptions.c
+@@ -1294,13 +1294,13 @@ cupsd_send_dbus(cupsd_eventmask_t event,/* I - Event to send */
      what = "PrinterAdded";
    else if (event & CUPSD_EVENT_PRINTER_DELETED)
      what = "PrinterRemoved";
@@ -119,7 +122,7 @@ diff -up cups-2.2.5/scheduler/subscriptions.c.eggcups cups-2.2.5/scheduler/subsc
    else
      return;
  
-@@ -1333,7 +1333,7 @@ cupsd_send_dbus(cupsd_eventmask_t event,
+@@ -1336,7 +1336,7 @@ cupsd_send_dbus(cupsd_eventmask_t event,/* I - Event to send */
    dbus_message_append_iter_init(message, &iter);
    if (dest)
      dbus_message_iter_append_string(&iter, dest->name);
@@ -128,3 +131,6 @@ diff -up cups-2.2.5/scheduler/subscriptions.c.eggcups cups-2.2.5/scheduler/subsc
    {
      dbus_message_iter_append_uint32(&iter, job->id);
      dbus_message_iter_append_string(&iter, job->username);
+-- 
+2.23.0
+
