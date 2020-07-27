@@ -259,7 +259,6 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %{_unitdir}/cups-lpd.socket
 %{_unitdir}/cups-lpd@.service
 %{_bindir}/cupstestppd
-%{_bindir}/ippeveprinter
 #%%{_bindir}/cupstestdsc
 %{_bindir}/ppd*
 %{_bindir}/cancel*
