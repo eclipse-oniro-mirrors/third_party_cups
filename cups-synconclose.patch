@@ -1,7 +1,6 @@
-diff --git a/conf/cups-files.conf.in b/conf/cups-files.conf.in
-index f4230c9..6609831 100644
---- a/conf/cups-files.conf.in
-+++ b/conf/cups-files.conf.in
+diff -up cups-2.2.12/conf/cups-files.conf.in.synconclose cups-2.2.12/conf/cups-files.conf.in
+--- cups-2.2.12/conf/cups-files.conf.in.synconclose	2019-08-16 00:35:30.000000000 +0200
++++ cups-2.2.12/conf/cups-files.conf.in	2019-08-19 09:58:14.646567949 +0200
 @@ -7,7 +7,7 @@
  #FatalErrors @CUPS_FATAL_ERRORS@
  
@@ -11,11 +10,10 @@ index f4230c9..6609831 100644
  
  # Default user and group for filters/backends/helper programs; this cannot be
  # any user or group that resolves to ID 0 for security reasons...
-diff --git a/doc/help/man-cups-files.conf.html b/doc/help/man-cups-files.conf.html
-index 6144a16..b82117c 100644
---- a/doc/help/man-cups-files.conf.html
-+++ b/doc/help/man-cups-files.conf.html
-@@ -150,7 +150,7 @@ The default is "/var/run/cups" or "/etc/cups" depending on the platform.
+diff -up cups-2.2.12/doc/help/man-cups-files.conf.html.synconclose cups-2.2.12/doc/help/man-cups-files.conf.html
+--- cups-2.2.12/doc/help/man-cups-files.conf.html.synconclose	2019-08-16 00:35:30.000000000 +0200
++++ cups-2.2.12/doc/help/man-cups-files.conf.html	2019-08-19 09:58:14.646567949 +0200
+@@ -150,7 +150,7 @@ The default is "/var/run/cups" or "/etc/
  <dd style="margin-left: 5.0em">Specifies whether the scheduler calls
  <b>fsync</b>(2)
  after writing configuration or state files.
@@ -24,11 +22,10 @@ index 6144a16..b82117c 100644
  <dt><a name="SystemGroup"></a><b>SystemGroup </b><i>group-name </i>[ ... <i>group-name</i> ]
  <dd style="margin-left: 5.0em">Specifies the group(s) to use for <i>@SYSTEM</i> group authentication.
  The default contains "admin", "lpadmin", "root", "sys", and/or "system".
-diff --git a/man/cups-files.conf.man.in b/man/cups-files.conf.man.in
-index f5e6a9f..c3d8eeb 100644
---- a/man/cups-files.conf.man.in
-+++ b/man/cups-files.conf.man.in
-@@ -214,7 +214,7 @@ The default is "/var/run/cups" or "/etc/cups" depending on the platform.
+diff -up cups-2.2.12/man/cups-files.conf.man.in.synconclose cups-2.2.12/man/cups-files.conf.man.in
+--- cups-2.2.12/man/cups-files.conf.5.synconclose	2019-08-16 00:35:30.000000000 +0200
++++ cups-2.2.12/man/cups-files.conf.5	2019-08-19 09:58:14.646567949 +0200
+@@ -214,7 +214,7 @@ The default is "/var/run/cups" or "/etc/
  Specifies whether the scheduler calls
  .BR fsync (2)
  after writing configuration or state files.
@@ -37,10 +34,9 @@ index f5e6a9f..c3d8eeb 100644
  .\"#SystemGroup
  .TP 5
  \fBSystemGroup \fIgroup-name \fR[ ... \fIgroup-name\fR ]
-diff --git a/scheduler/conf.c b/scheduler/conf.c
-index 11c94d2..96993c7 100644
---- a/scheduler/conf.c
-+++ b/scheduler/conf.c
+diff -up cups-2.2.12/scheduler/conf.c.synconclose cups-2.2.12/scheduler/conf.c
+--- cups-2.2.12/scheduler/conf.c.synconclose	2019-08-19 09:58:14.647567941 +0200
++++ cups-2.2.12/scheduler/conf.c	2019-08-19 09:59:36.066927455 +0200
 @@ -735,7 +735,7 @@ cupsdReadConfiguration(void)
    RootCertDuration         = 300;
    Sandboxing               = CUPSD_SANDBOXING_STRICT;
@@ -50,6 +46,3 @@ index 11c94d2..96993c7 100644
    Timeout                  = 900;
    WebInterface             = CUPS_DEFAULT_WEBIF;
  
--- 
-2.23.0
-

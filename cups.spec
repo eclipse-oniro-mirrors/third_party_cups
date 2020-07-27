@@ -1,6 +1,7 @@
+%global cups_serverbin %{_exec_prefix}/lib/cups
 Name:    cups
 Epoch:   1
-Version: 2.2.13
+Version: 2.3.3
 Release: 1
 Summary: CUPS is the standards-based, open source printing system for linux operating systems.
 License: GPLv2+ and LGPLv2+ with exceptions and AML
@@ -12,31 +13,43 @@ Source3: cups.logrotate
 Source4: ncp.backend
 Source5: macros.cups
 
-Patch1:  cups-no-gzip-man.patch
-Patch2:  cups-system-auth.patch
-Patch3:  cups-multilib.patch
-Patch4:  cups-banners.patch
-Patch5:  cups-no-export-ssllibs.patch
-Patch6:  cups-direct-usb.patch
-Patch7:  cups-eggcups.patch
-Patch8:  cups-usb-paperout.patch
-Patch9:  cups-uri-compat.patch
-Patch10: cups-hp-deviceid-oid.patch
-Patch11: cups-ricoh-deviceid-oid.patch
-Patch12: cups-systemd-socket.patch
-Patch13: cups-freebind.patch
-Patch14: cups-ipp-multifile.patch
-Patch15: cups-synconclose.patch
-Patch16: cups-ypbind.patch
-Patch17: cups-lspp.patch
-Patch18: cups-lpr-help.patch
-Patch19: cups-filter-debug.patch
-Patch20: cups-dymo-deviceid.patch
-Patch21: custom-option-keywords-did-not.patch
+Patch1:  cups-system-auth.patch
+Patch2:  cups-multilib.patch
+Patch3:  cups-banners.patch
+Patch4:  cups-no-export-ssllibs.patch
+Patch5:  cups-direct-usb.patch
+Patch6:  cups-eggcups.patch
+Patch7:  cups-driverd-timeout.patch
+Patch8:  cups-logrotate.patch
+Patch9:  cups-usb-paperout.patch
+Patch10:  cups-uri-compat.patch
+Patch11: cups-hp-deviceid-oid.patch
+Patch12: cups-ricoh-deviceid-oid.patch
+Patch13: cups-systemd-socket.patch
+Patch14: cups-freebind.patch
+Patch15: cups-ipp-multifile.patch
+Patch16: cups-web-devices-timeout.patch
+Patch17: cups-synconclose.patch
+Patch18: cups-ypbind.patch
+Patch19: cups-lspp.patch
+Patch20: cups-failover-backend.patch
+Patch21: cups-filter-debug.patch
+Patch22: cups-dymo-deviceid.patch
+Patch23: cups-autostart-when-enabled.patch
+Patch24: cups-prioritize-print-color-mode.patch
+Patch25: cups-ppdleak.patch
+Patch26: cups-rastertopwg-crash.patch 
+Patch27: cups-etimedout.patch 
+Patch28: cups-webui-uri.patch
+Patch29: cups-ipptool-mdns-uri.patch 
+Patch30: cups-manual-copies.patch 
 
-Provides: cupsddk cupsddk-drivers cups-filesystem cups-client cups-ipptool cups-lpd
+Provides: cupsddk cupsddk-drivers cups-filesystem cups-client cups-ipptool cups-lpd 
 Provides: lpd lpr /usr/bin/lpq /usr/bin/lpr /usr/bin/lp /usr/bin/cancel /usr/bin/lprm /usr/bin/lpstat
 Obsoletes: cups-client cups-filesystem cups-lpd cups-ipptool
+
+Provides: cups-printerapp = %{version}-%{release}
+Obsoletes: cups-printerapp < %{version}-%{release}
 
 BuildRequires: pam-devel pkgconf-pkg-config pkgconfig(gnutls) libacl-devel openldap-devel pkgconfig(libusb-1.0)
 BuildRequires: krb5-devel pkgconfig(avahi-client) systemd pkgconfig(libsystemd) pkgconfig(dbus-1) python3-cups
@@ -246,14 +259,18 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %{_unitdir}/cups-lpd.socket
 %{_unitdir}/cups-lpd@.service
 %{_bindir}/cupstestppd
-%{_bindir}/cupstestdsc
+%{_bindir}/ippeveprinter
+#%%{_bindir}/cupstestdsc
 %{_bindir}/ppd*
 %{_bindir}/cancel*
 %{_bindir}/lp*
 %{_bindir}/ipptool
 %{_bindir}/ippfind
+%{_bindir}/ippeveprinter
 %{_sbindir}/*
-%{_sbindir}/lpc.cups
+%dir %{cups_serverbin}/command
+%{cups_serverbin}/command/ippevepcl
+%{cups_serverbin}/command/ippeveps
 
 %{_exec_prefix}/lib/cups/backend/*
 %{_exec_prefix}/lib/cups/cgi-bin
@@ -294,7 +311,7 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %{_datadir}/cups/ipptool/*
 
 %files libs
-%{license} LICENSE.txt
+%{license} LICENSE NOTICE
 %{_libdir}/lib*.so.*
 
 %files devel
@@ -305,13 +322,6 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 
 %files help
 %{_mandir}/man[1578]/*
-%{_mandir}/man1/cancel-cups.1.gz
-%{_mandir}/man1/cups-config.1.gz
-%{_mandir}/man1/ipptool.1.gz
-%{_mandir}/man1/lp*.1.gz
-%{_mandir}/man5/ipptoolfile.5.gz
-%{_mandir}/man8/cups-lpd.8.gz
-%{_mandir}/man8/lpc-cups.8.gz
 
 %doc README.md CREDITS.md CHANGES.md
 %doc %{_datadir}/%{name}/www/index.html
@@ -325,6 +335,12 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %doc %{_datadir}/%{name}/www/apple-touch-icon.png
 
 %changelog
+* Mon Jul 20 2020 wangye <wang70@huawei.com> - 2.3.3-1
+- Type:enhancement
+- ID:NA
+- SUG:NA
+- DESC:upgrade to 2.3.3
+
 * Fri Jun 12 2020 hanhui <hanhui15@huawei.com> - 2.2.13-1
 - Type:enhancement
 - ID:NA
