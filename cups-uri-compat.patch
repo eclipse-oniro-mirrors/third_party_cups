@@ -26,8 +26,8 @@ diff -up cups-1.5b1/backend/usb-unix.c.uri-compat cups-1.5b1/backend/usb-unix.c
 +      {
 +	char *x = e + mfrlen;
 +	if (!strncmp (x, "%20", 3))
-+	  /* Take mfr name out of mdl name for compatibility
-+	   * before bug #507244 was fixed. */
++	  /* Take mfr name out of mdl name for compatibility with
++	   * Fedora 11 before bug #507244 was fixed. */
 +	  strcpy (e, x + 3); puts(fixed_uri);
 +      }
 +    }

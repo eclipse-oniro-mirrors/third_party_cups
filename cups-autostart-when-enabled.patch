@@ -1,0 +1,10 @@
+diff --git a/scheduler/org.cups.cupsd.service.in b/scheduler/org.cups.cupsd.service.in
+index bf308a5..add238b 100644
+--- a/scheduler/org.cups.cupsd.service.in
++++ b/scheduler/org.cups.cupsd.service.in
+@@ -10,4 +10,4 @@ Restart=on-failure
+ 
+ [Install]
+ Also=cups.socket cups.path
+-WantedBy=printer.target
++WantedBy=printer.target multi-user.target

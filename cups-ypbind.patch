@@ -1,16 +1,12 @@
-diff --git a/scheduler/org.cups.cupsd.service.in b/scheduler/org.cups.cupsd.service.in
-index c4b2c4f..baa82b7 100644
---- a/scheduler/org.cups.cupsd.service.in
-+++ b/scheduler/org.cups.cupsd.service.in
+diff -up cups-2.2.12/scheduler/org.cups.cupsd.service.in.ypbind cups-2.2.12/scheduler/org.cups.cupsd.service.in
+--- cups-2.2.12/scheduler/org.cups.cupsd.service.in.ypbind	2019-08-19 10:00:47.586326493 +0200
++++ cups-2.2.12/scheduler/org.cups.cupsd.service.in	2019-08-19 10:01:39.295890076 +0200
 @@ -1,7 +1,7 @@
  [Unit]
  Description=CUPS Scheduler
  Documentation=man:cupsd(8)
--After=network.target
-+After=network.target ypbind.service
- After=sssd.service
+-After=sssd.service network.target
++After=sssd.service network.target ypbind.service
  
  [Service]
--- 
-2.23.0
-
+ ExecStart=@sbindir@/cupsd -l
