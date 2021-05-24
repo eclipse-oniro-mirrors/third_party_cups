@@ -2,7 +2,7 @@
 Name:    cups
 Epoch:   1
 Version: 2.3.3
-Release: 3
+Release: 4
 Summary: CUPS is the standards-based, open source printing system for linux operating systems.
 License: GPLv2+ and LGPLv2+ with exceptions and AML
 Url:     http://www.cups.org/
@@ -97,7 +97,7 @@ aclocal -I config-scripts
 autoconf -I config-scripts
 
 %build
-export DSOFLAGS="$DSOFLAGS -L../cgi-bin -L../filter -L../ppdc -L../scheduler -Wl,-z,relro -Wl,-z,now -specs=/usr/lib/rpm/%{?_vendor}/%{?_vendor}-hardened-ld -Wl,-z,relro,-z,now -fPIE -pie" 
+export DSOFLAGS="$DSOFLAGS -L../cgi-bin -L../filter -L../ppdc -L../scheduler -Wl,-z,relro -Wl,-z,now -specs=/usr/lib/rpm/generic-hardened-ld -Wl,-z,relro,-z,now -fPIE -pie" 
 export CFLAGS="$RPM_OPT_FLAGS -fstack-protector-all -DLDAP_DEPRECATED=1"
 # --enable-debug to avoid stripping binaries
 %configure --with-docdir=%{_datadir}/%{name}/www --enable-debug \
@@ -334,6 +334,12 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %doc %{_datadir}/%{name}/www/apple-touch-icon.png
 
 %changelog
+* Mon May 24 2021 liuyumeng <liuyumeng@huawei.com> - 2.3.3-4
+- Type:bugfix
+- ID:NA
+- SUG:NA
+- DESC:Compilation optimization
+
 * Tue Sep 29 2020 hanhui <hanhui15@huawei.com> - 2.3.3-3
 - Type:bugfix
 - ID:NA
