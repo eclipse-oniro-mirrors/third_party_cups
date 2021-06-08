@@ -2,7 +2,7 @@
 Name:    cups
 Epoch:   1
 Version: 2.3.3
-Release: 5
+Release: 6
 Summary: CUPS is the standards-based, open source printing system for linux operating systems.
 License: GPLv2+ and LGPLv2+ with exceptions and AML
 Url:     http://www.cups.org/
@@ -290,7 +290,7 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %{_datadir}/cups/templates/pt_BR/*.tmpl
 %dir %attr(1770,root,lp) %{_localstatedir}/spool/cups/tmp
 %dir %attr(0710,root,lp) %{_localstatedir}/spool/cups
-%dir %attr(0755,lp,sys) %{_localstatedir}/log/cups
+%dir %attr(0755,root,lp) %{_localstatedir}/log/cups
 %{_datadir}/pixmaps/cupsprinter.png
 
 %{_datadir}/cups/drv/sample.drv
@@ -332,6 +332,12 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %doc %{_datadir}/%{name}/www/apple-touch-icon.png
 
 %changelog
+* Tue Jun 08 2021 wangkerong <wangkeorng@huawei.com> - 2.3.3-6
+- Type:CVE
+- ID:CVE-2021-25317
+- SUG:NA
+- DESC:Fix CVE-2021-25317
+
 * Tue May 25 2021 liuyumeng <liuyumeng@huawei.com> - 2.3.3-5
 - remove unused ncp backend
 
