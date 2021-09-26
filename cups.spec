@@ -2,7 +2,7 @@
 Name:    cups
 Epoch:   1
 Version: 2.3.3
-Release: 6
+Release: 7
 Summary: CUPS is the standards-based, open source printing system for linux operating systems.
 License: GPLv2+ and LGPLv2+ with exceptions and AML
 Url:     http://www.cups.org/
@@ -42,6 +42,7 @@ Patch27: cups-etimedout.patch
 Patch28: cups-webui-uri.patch
 Patch29: cups-ipptool-mdns-uri.patch 
 Patch30: cups-manual-copies.patch 
+Patch6000: backport-CVE-2020-10001.patch
 
 Provides: cupsddk cupsddk-drivers cups-filesystem cups-client cups-ipptool cups-lpd 
 Provides: lpd lpr /usr/bin/lpq /usr/bin/lpr /usr/bin/lp /usr/bin/cancel /usr/bin/lprm /usr/bin/lpstat
@@ -332,6 +333,12 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %doc %{_datadir}/%{name}/www/apple-touch-icon.png
 
 %changelog
+* Fri Sep 24 2021 liuyumeng <liuyumeng5@huawei.com> - 2.3.3-7
+- Type:CVE
+- ID:CVE-2020-10001
+- SUG:NA
+- DESC:Fix CVE-2020-10001
+
 * Tue Jun 08 2021 wangkerong <wangkeorng@huawei.com> - 2.3.3-6
 - Type:CVE
 - ID:CVE-2021-25317
