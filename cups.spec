@@ -2,7 +2,7 @@
 Name:    cups
 Epoch:   1
 Version: 2.3.3
-Release: 7
+Release: 8
 Summary: CUPS is the standards-based, open source printing system for linux operating systems.
 License: GPLv2+ and LGPLv2+ with exceptions and AML
 Url:     http://www.cups.org/
@@ -64,7 +64,7 @@ Protocol (IPP) to support printing to local and network printers..
 %package devel
 Summary: CUPS printing system - development environment
 License: LGPLv2
-Requires: %{name}%-libs = %{epoch}:%{version}-%{release}
+Requires: %{name}-libs = %{epoch}:%{version}-%{release}
 Requires: gnutls-devel krb5-devel zlib-devel
 Provides: cupsddk-devel
 
@@ -333,6 +333,12 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %doc %{_datadir}/%{name}/www/apple-touch-icon.png
 
 %changelog
+* Thu Nov 04 2021 wangkerong <wangkerong@huawei.com> - 2.3.3-8
+- Type:bugfix
+- ID:NA
+- SUG:NA
+- DESC:fix cups-devel requires error
+
 * Fri Sep 24 2021 liuyumeng <liuyumeng5@huawei.com> - 2.3.3-7
 - Type:CVE
 - ID:CVE-2020-10001
