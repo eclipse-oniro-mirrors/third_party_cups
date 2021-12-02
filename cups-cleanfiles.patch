@@ -1,0 +1,16 @@
+diff --git a/scheduler/main.c b/scheduler/main.c
+index e1fa357..53ca94a 100644
+--- a/scheduler/main.c
++++ b/scheduler/main.c
+@@ -1760,6 +1760,11 @@ select_timeout(int fds)			/* I - Number of descriptors returned */
+  /*
+   * Check for any job activity...
+   */
++  if (JobHistoryUpdate && timeout > JobHistoryUpdate)
++  {
++    timeout = JobHistoryUpdate;
++    why     = "update job history";
++  }
+ 
+   for (job = (cupsd_job_t *)cupsArrayFirst(ActiveJobs);
+        job;

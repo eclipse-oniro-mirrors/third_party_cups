@@ -1,0 +1,49 @@
+diff --git a/config-scripts/cups-compiler.m4 b/config-scripts/cups-compiler.m4
+index 733b06c..bb770f0 100644
+--- a/config-scripts/cups-compiler.m4
++++ b/config-scripts/cups-compiler.m4
+@@ -123,21 +123,35 @@ if test -n "$GCC"; then
+     		OPTIM="-fPIC $OPTIM"
+ 	fi
+ 
+-	# The -fstack-protector option is available with some versions of
+-	# GCC and adds "stack canaries" which detect when the return address
+-	# has been overwritten, preventing many types of exploit attacks.
+-	AC_MSG_CHECKING(whether compiler supports -fstack-protector)
++    # The -fstack-protector-strong and -fstack-protector options are available
++    # with some versions of# GCC and adds "stack canaries" which detect
++    # when the return address has been overwritten, preventing many types of exploit attacks.
++    # First check for -fstack-protector-strong, then for -fstack-protector...
++    AC_MSG_CHECKING([whether compiler supports -fstack-protector-strong])
+ 	OLDCFLAGS="$CFLAGS"
+-	CFLAGS="$CFLAGS -fstack-protector"
+-	AC_TRY_LINK(,,
++  CFLAGS="$CFLAGS -fstack-protector-strong"
++	AC_TRY_LINK(,,[
+ 		if test "x$LSB_BUILD" = xy; then
+ 			# Can't use stack-protector with LSB binaries...
+ 			OPTIM="$OPTIM -fno-stack-protector"
+ 		else
+-			OPTIM="$OPTIM -fstack-protector"
++			OPTIM="$OPTIM -fstack-protector-strong"
+ 		fi
+-		AC_MSG_RESULT(yes),
+-		AC_MSG_RESULT(no))
++		AC_MSG_RESULT(yes)
++  ], [
++	  AC_MSG_CHECKING([whether compiler supports -fstack-protector])
++	  CFLAGS="$OLDCFLAGS -fstack-protector"
++	  AC_LINK_IFELSE([AC_LANG_PROGRAM()], [
++	    AS_IF([test "x$LSB_BUILD" = xy], [
++	  	# Can't use stack-protector with LSB binaries...
++	  	OPTIM="$OPTIM -fno-stack-protector"
++	    ], [
++	  	OPTIM="$OPTIM -fstack-protector"
++	    ])
++	    ], [
++	    AC_MSG_RESULT([no])
++	    ])
++	])
+ 	CFLAGS="$OLDCFLAGS"
+ 
+ 	if test "x$LSB_BUILD" != xy; then
