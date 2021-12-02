@@ -1,72 +1,84 @@
 %global cups_serverbin %{_exec_prefix}/lib/cups
+%global OP_VER op2
+
 Name:    cups
 Epoch:   1
-Version: 2.3.3
-Release: 8
+Version: 2.3.3%{OP_VER}
+Release: 1
 Summary: CUPS is the standards-based, open source printing system for linux operating systems.
 License: GPLv2+ and LGPLv2+ with exceptions and AML
 Url:     http://www.cups.org/
-Source0: https://github.com/apple/cups/archive/v%{version}.tar.gz
+# Apple stopped uploading the new versions into github, use OpenPrinting fork
+Source0: https://github.com/OpenPrinting/cups/releases/download/v%{version}/cups-%{version}-source.tar.gz
 
-Source2: cupsprinter.png
-Source3: cups.logrotate
-Source5: macros.cups
+Source1: cupsprinter.png
+Source2: macros.cups
 
 Patch1:  cups-system-auth.patch
 Patch2:  cups-multilib.patch
 Patch3:  cups-banners.patch
 Patch4:  cups-no-export-ssllibs.patch
 Patch5:  cups-direct-usb.patch
-Patch6:  cups-eggcups.patch
-Patch7:  cups-driverd-timeout.patch
-Patch8:  cups-logrotate.patch
-Patch9:  cups-usb-paperout.patch
-Patch10:  cups-uri-compat.patch
-Patch11: cups-hp-deviceid-oid.patch
-Patch12: cups-ricoh-deviceid-oid.patch
-Patch13: cups-systemd-socket.patch
-Patch14: cups-freebind.patch
-Patch15: cups-ipp-multifile.patch
-Patch16: cups-web-devices-timeout.patch
-Patch17: cups-synconclose.patch
-Patch18: cups-ypbind.patch
-Patch19: cups-lspp.patch
-Patch20: cups-failover-backend.patch
-Patch21: cups-filter-debug.patch
-Patch22: cups-dymo-deviceid.patch
-Patch23: cups-autostart-when-enabled.patch
-Patch24: cups-prioritize-print-color-mode.patch
-Patch25: cups-ppdleak.patch
-Patch26: cups-rastertopwg-crash.patch 
-Patch27: cups-etimedout.patch 
-Patch28: cups-webui-uri.patch
-Patch29: cups-ipptool-mdns-uri.patch 
-Patch30: cups-manual-copies.patch 
-Patch6000: backport-CVE-2020-10001.patch
-
-Provides: cupsddk cupsddk-drivers cups-filesystem cups-client cups-ipptool cups-lpd 
-Provides: lpd lpr /usr/bin/lpq /usr/bin/lpr /usr/bin/lp /usr/bin/cancel /usr/bin/lprm /usr/bin/lpstat
-Obsoletes: cups-client cups-filesystem cups-lpd cups-ipptool
-
-Provides: cups-printerapp = %{version}-%{release}
-Obsoletes: cups-printerapp < %{version}-%{release}
+Patch6:  cups-driverd-timeout.patch
+Patch7:  cups-usb-paperout.patch
+Patch8:  cups-uri-compat.patch
+Patch9:  cups-freebind.patch
+Patch10: cups-ipp-multifile.patch
+Patch11: cups-web-devices-timeout.patch
+Patch12: cups-failover-backend.patch
+Patch13: cups-dymo-deviceid.patch
+Patch14: cups-logs.patch
+Patch15: backport-backend-usb-libusb.c-Use-60s-timeout-for-reading-at-.patch
+Patch16: cups-nssuserlookup-target.patch
+Patch17: backport-Retry-Validate-Job-once-if-needed-Issue-132.patch
+Patch18: backport-cups.service.in-Add-SYSTEMD_WANTED_BY-variable.patch
+Patch19: cups-cleanfiles.patch
+Patch20: backport-cgi-bin-ipp-var.c-Use-guest-user-for-Move-Job-when-n.patch
+Patch21: backport-scheduler-job.c-use-gziptoany-for-raw-files-not-just.patch
+Patch22: cups-restart-job-hold-until.patch
+Patch23: backport-cups-md5passwd.c-Stub-out-httpMD5-functions.patch
+Patch24: cups-deprecate-drivers.patch
+Patch25: cups-fstack-strong.patch
+Patch26: cups-lspp.patch
 
 BuildRequires: pam-devel pkgconf-pkg-config pkgconfig(gnutls) libacl-devel openldap-devel pkgconfig(libusb-1.0)
 BuildRequires: krb5-devel pkgconfig(avahi-client) systemd pkgconfig(libsystemd) pkgconfig(dbus-1) python3-cups
-BuildRequires: automake zlib-devel gcc gcc-c++ libselinux-devel audit-libs-devel
-Requires: dbus systemd acl cups-filters /usr/sbin/alternatives %{name}-libs = %{epoch}:%{version}-%{release}
+BuildRequires: automake zlib-devel gcc gcc-c++ libselinux-devel audit-libs-devel make
+Requires: dbus systemd acl cups-filters /usr/sbin/alternatives 
+Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: %{name}-client%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: %{name}-filesystem = %{epoch}:%{version}-%{release}
+
+# Requires working PrivateTmp (bug #807672)
+Requires(pre): systemd
+Requires(post): systemd
+Requires(post): grep, sed
+Requires(preun): systemd
+Requires(postun): systemd
 
 %description
 CUPS is the standards-based, open source printing system developed by Apple Inc.
 for UNIX®-like operating systems. CUPS uses the Internet Printing
-Protocol (IPP) to support printing to local and network printers..
+Protocol (IPP) to support printing to local and network printers.
+
+%package client
+Summary: CUPS printing system - client programs
+License: GPLv2
+Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
+Provides: /usr/bin/lpq /usr/bin/lpr /usr/bin/lp /usr/bin/cancel /usr/bin/lprm /usr/bin/lpstat
+Requires: /usr/sbin/alternatives
+Provides: lpr
+
+%description client
+CUPS printing system provides a portable printing layer for
+UNIX® operating systems. This package contains command-line client
+programs.
 
 %package devel
 Summary: CUPS printing system - development environment
 License: LGPLv2
-Requires: %{name}-libs = %{epoch}:%{version}-%{release}
+Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
 Requires: gnutls-devel krb5-devel zlib-devel
-Provides: cupsddk-devel
 
 %description devel
 CUPS is the standards-based, open source printing system developed by Apple Inc.
@@ -77,8 +89,53 @@ package to develop other printer drivers.
 Summary: CUPS libs
 License: LGPLv2 and zlib
 
-%description  libs
-The package provides cups libraries
+%description libs
+CUPS printing system provides a portable printing layer for
+UNIX® operating systems. It has been developed by Apple Inc.
+to promote a standard printing solution for all UNIX vendors and users.
+CUPS provides the System V and Berkeley command-line interfaces.
+The cups-libs package provides libraries used by applications to use CUPS
+natively, without needing the lp/lpr commands.
+
+%package filesystem
+Summary: CUPS printing system - directory layout
+BuildArch: noarch
+
+%description filesystem
+CUPS printing system provides a portable printing layer for
+UNIX® operating systems. This package provides some directories which are
+required by other packages that add CUPS drivers (i.e. filters, backends etc.).
+
+%package lpd
+Summary: CUPS printing system - lpd emulation
+Requires: %{name}%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
+Provides: lpd
+
+%description lpd
+CUPS printing system provides a portable printing layer for
+UNIX® operating systems. This is the package that provides standard
+lpd emulation.
+
+%package ipptool
+Summary: CUPS printing system - tool for performing IPP requests
+Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: avahi
+
+%description ipptool
+Sends IPP requests to the specified URI and tests and/or displays the results.
+
+%package printerapp
+Summary: CUPS printing system - tools for printer application
+Requires: %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: avahi
+
+%description printerapp
+Provides IPP everywhere printer application ippeveprinter and tools for printing
+PostScript and HP PCL document formats - ippevepcl and ippeveps. The printer
+application enables older printers for IPP everywhere standard - so if older printer
+is installed with a printer application, its print queue acts as IPP everywhere printer
+to CUPS daemon. This solution will substitute printer drivers and raw queues in the future.
 
 %package    help
 Summary:    Documents for cups
@@ -92,9 +149,10 @@ Man pages and other related documents.
 
 sed -i -e '1iMaxLogSize 0' conf/cupsd.conf.in
 sed -i -e 's,^ErrorLog .*$,ErrorLog syslog,' -i -e 's,^AccessLog .*$,AccessLog syslog,' -i -e 's,^PageLog .*,PageLog syslog,' conf/cups-files.conf.in
+perl -pi -e "s,^.SILENT:,," Makedefs.in
 
 aclocal -I config-scripts
-autoconf -I config-scripts
+autoconf -f -I config-scripts
 
 %build
 export DSOFLAGS="$DSOFLAGS -L../cgi-bin -L../filter -L../ppdc -L../scheduler -Wl,-z,relro -Wl,-z,now -specs=/usr/lib/rpm/generic-hardened-ld -Wl,-z,relro,-z,now -fPIE -pie" 
@@ -107,7 +165,6 @@ export CFLAGS="$RPM_OPT_FLAGS -fstack-protector-all -DLDAP_DEPRECATED=1"
     --with-log-file-perm=0600 \
     --enable-relro \
     --with-dbusdir=%{_sysconfdir}/dbus-1 \
-    --with-php=/usr/bin/php-cgi \
     --enable-avahi \
     --enable-threads \
     --enable-gnutls \
@@ -115,9 +172,14 @@ export CFLAGS="$RPM_OPT_FLAGS -fstack-protector-all -DLDAP_DEPRECATED=1"
     --with-xinetd=no \
     --with-access-log-level=actions \
     --enable-page-logging \
+    --with-rundir=%{_rundir}/cups \
+    --enable-sync-on-close \
     localedir=%{_datadir}/locale
 
 %make_build
+
+%check
+make check
 
 %install
 make BUILDROOT=${RPM_BUILD_ROOT} install
@@ -141,25 +203,24 @@ done
 mv ${RPM_BUILD_ROOT}%{_mandir}/man8/lpc.8 ${RPM_BUILD_ROOT}%{_mandir}/man8/lpc-cups.8
 popd
 
-mv ${RPM_BUILD_ROOT}%{_unitdir}/org.cups.cupsd.path ${RPM_BUILD_ROOT}%{_unitdir}/cups.path
-mv ${RPM_BUILD_ROOT}%{_unitdir}/org.cups.cupsd.service ${RPM_BUILD_ROOT}%{_unitdir}/cups.service
-mv ${RPM_BUILD_ROOT}%{_unitdir}/org.cups.cupsd.socket ${RPM_BUILD_ROOT}%{_unitdir}/cups.socket
-mv ${RPM_BUILD_ROOT}%{_unitdir}/org.cups.cups-lpd.socket ${RPM_BUILD_ROOT}%{_unitdir}/cups-lpd.socket
-mv ${RPM_BUILD_ROOT}%{_unitdir}/org.cups.cups-lpd@.service ${RPM_BUILD_ROOT}%{_unitdir}/cups-lpd@.service
-
-/bin/sed -i -e "s,org.cups.cupsd,cups,g" ${RPM_BUILD_ROOT}%{_unitdir}/cups.service
-
 install -d ${RPM_BUILD_ROOT}%{_datadir}/pixmaps ${RPM_BUILD_ROOT}%{_sysconfdir}/X11/sysconfig \
-           ${RPM_BUILD_ROOT}%{_sysconfdir}/X11/applnk/System ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d \
+           ${RPM_BUILD_ROOT}%{_sysconfdir}/X11/applnk/System \
            ${RPM_BUILD_ROOT}%{_rpmconfigdir}/macros.d
-install -p -m 644 %{SOURCE2} ${RPM_BUILD_ROOT}%{_datadir}/pixmaps
-install -p -m 644 %{SOURCE3} ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d/cups
-install -m 0644 %{SOURCE5} ${RPM_BUILD_ROOT}%{_rpmconfigdir}/macros.d
+install -p -m 644 %{SOURCE1} ${RPM_BUILD_ROOT}%{_datadir}/pixmaps
+install -m 0644 %{SOURCE2} ${RPM_BUILD_ROOT}%{_rpmconfigdir}/macros.d
 
 touch ${RPM_BUILD_ROOT}%{_sysconfdir}/cups/{printers,classes,client,subscriptions}.conf
 touch ${RPM_BUILD_ROOT}%{_sysconfdir}/cups/lpoptions
 
 install -d ${RPM_BUILD_ROOT}%{_datadir}/ppd
+
+# Remove unshipped files.
+rm -rf %{buildroot}%{_mandir}/cat? %{buildroot}%{_mandir}/*/cat?
+rm -f %{buildroot}%{_datadir}/applications/cups.desktop
+rm -rf %{buildroot}%{_datadir}/icons
+# there are pdf-banners shipped with cups-filters (#919489)
+rm -rf %{buildroot}%{_datadir}/cups/banners
+rm -f %{buildroot}%{_datadir}/cups/data/testprint
 
 install -d ${RPM_BUILD_ROOT}%{_tmpfilesdir}
 cat > ${RPM_BUILD_ROOT}%{_tmpfilesdir}/cups.conf <<EOF
@@ -181,32 +242,50 @@ s:.*\('%{_datadir}'/\)\([^/_]\+\)\(.*\.po$\):%lang(\2) \1\2\3:
 /^\([^%].*\)/d
 ' > %{name}.lang
 
-%pre
-
-%preun
-%systemd_preun %{name}.path %{name}.socket %{name}.service
-%systemd_preun cups-lpd.socket
-
 %post
-
 %systemd_post %{name}.path %{name}.socket %{name}.service
 
 install -d ${RPM_BUILD_ROOT}%{_localstatedir}/run/cups/certs
 
 /bin/sed -i -e "s,^PageLogFormat,#PageLogFormat,i" %{_sysconfdir}/cups/cups-files.conf
 
+%post client
+/usr/sbin/alternatives --install %{_bindir}/lpr print %{_bindir}/lpr.cups 40 \
+	 --slave %{_bindir}/lp print-lp %{_bindir}/lp.cups \
+	 --slave %{_bindir}/lpq print-lpq %{_bindir}/lpq.cups \
+	 --slave %{_bindir}/lprm print-lprm %{_bindir}/lprm.cups \
+	 --slave %{_bindir}/lpstat print-lpstat %{_bindir}/lpstat.cups \
+	 --slave %{_bindir}/cancel print-cancel %{_bindir}/cancel.cups \
+	 --slave %{_sbindir}/lpc print-lpc %{_sbindir}/lpc.cups \
+	 --slave %{_mandir}/man1/cancel.1.gz print-cancelman %{_mandir}/man1/cancel-cups.1.gz \
+	 --slave %{_mandir}/man1/lp.1.gz print-lpman %{_mandir}/man1/lp-cups.1.gz \
+	 --slave %{_mandir}/man8/lpc.8.gz print-lpcman %{_mandir}/man8/lpc-cups.8.gz \
+	 --slave %{_mandir}/man1/lpq.1.gz print-lpqman %{_mandir}/man1/lpq-cups.1.gz \
+	 --slave %{_mandir}/man1/lpr.1.gz print-lprman %{_mandir}/man1/lpr-cups.1.gz \
+	 --slave %{_mandir}/man1/lprm.1.gz print-lprmman %{_mandir}/man1/lprm-cups.1.gz \
+	 --slave %{_mandir}/man1/lpstat.1.gz print-lpstatman %{_mandir}/man1/lpstat-cups.1.gz || :
+ 
+%post lpd
 %systemd_post cups-lpd.socket
-exit 0
-
-%post libs -p /sbin/ldconfig
+ 
+%ldconfig_scriptlets libs
+ 
+%preun
+%systemd_preun %{name}.path %{name}.socket %{name}.service
+ 
+%preun client
+if [ $1 -eq 0 ] ; then
+	/usr/sbin/alternatives --remove print %{_bindir}/lpr.cups || :
+fi
+ 
+%preun lpd
+%systemd_preun cups-lpd.socket
 
 %postun
-
 %systemd_postun_with_restart %{name}.path %{name}.socket %{name}.service
+ 
+%postun lpd
 %systemd_postun_with_restart cups-lpd.socket
-exit 0
-
-%postun libs -p /sbin/ldconfig
 
 %triggerin -- samba-client
 ln -sf %{_libexecdir}/samba/cups_backend_smb %{_exec_prefix}/lib/cups/backend/smb || :
@@ -217,13 +296,77 @@ exit 0
 rm -f %{_exec_prefix}/lib/cups/backend/smb
 
 %files -f %{name}.lang
+%{_bindir}/cupstestppd
+%{_bindir}/ppd*
+%{_sbindir}/*
+# client subpackage
+%exclude %{_sbindir}/lpc.cups
+%dir %{cups_serverbin}/daemon
+%{cups_serverbin}/daemon/cups-deviced
+%{cups_serverbin}/daemon/cups-driverd
+%{cups_serverbin}/daemon/cups-exec
+%{cups_serverbin}/backend/*
+%{cups_serverbin}/cgi-bin
+%{cups_serverbin}/filter/*
+%{cups_serverbin}/monitor
+%{cups_serverbin}/notifier
+%{_datadir}/cups/drv/sample.drv
+%{_datadir}/cups/examples
+%{_datadir}/cups/mime/mime.types
+%{_datadir}/cups/mime/mime.convs
+%{_datadir}/cups/ppdc/*.defs
+%{_datadir}/cups/ppdc/*.h
+%dir %{_datadir}/cups/templates
+%{_datadir}/cups/templates/*.tmpl
+%dir %{_datadir}/cups/templates/de
+%{_datadir}/cups/templates/de/*.tmpl
+%dir %{_datadir}/cups/templates/es
+%{_datadir}/cups/templates/es/*.tmpl
+%dir %{_datadir}/cups/templates/fr
+%{_datadir}/cups/templates/fr/*.tmpl
+%dir %{_datadir}/cups/templates/ja
+%{_datadir}/cups/templates/ja/*.tmpl
+%dir %{_datadir}/cups/templates/pt_BR
+%{_datadir}/cups/templates/pt_BR/*.tmpl
+%dir %{_datadir}/cups/templates/ru
+%{_datadir}/cups/templates/ru/*.tmpl
+%dir %{_datadir}/%{name}/usb
+%{_datadir}/%{name}/usb/org.cups.usb-quirks
+%dir %{_datadir}/%{name}/www
+%{_datadir}/%{name}/www/images
+%{_datadir}/%{name}/www/*.css
+# 1658673 - html files cannot be docs, because CUPS web ui will not have
+# introduction page on Fedora Docker image (because rpms are installed
+# without docs there because of space reasons)
+%dir %{_datadir}/%{name}/www/de
+%dir %{_datadir}/%{name}/www/es
+%dir %{_datadir}/%{name}/www/ja
+%dir %{_datadir}/%{name}/www/pt_BR
+%dir %{_datadir}/%{name}/www/ru
+%{_datadir}/pixmaps/cupsprinter.png
+%dir %attr(1770,root,lp) %{_localstatedir}/spool/cups/tmp
+%dir %attr(0710,root,lp) %{_localstatedir}/spool/cups
+%dir %attr(0755,root,lp) %{_localstatedir}/log/cups
+# client subpackage
+%exclude %{_mandir}/man1/lp*.1.gz
+%exclude %{_mandir}/man1/cancel-cups.1.gz
+%exclude %{_mandir}/man8/lpc-cups.8.gz
+# devel subpackage
+%exclude %{_mandir}/man1/cups-config.1.gz
+# ipptool subpackage
+%exclude %{_mandir}/man1/ipptool.1.gz
+%exclude %{_mandir}/man5/ipptoolfile.5.gz
+# lpd subpackage
+%exclude %{_mandir}/man8/cups-lpd.8.gz
+# printerapp
+%exclude %{_mandir}/man1/ippeveprinter.1.gz
+%exclude %{_mandir}/man7/ippevepcl.7.gz
+%exclude %{_mandir}/man7/ippeveps.7.gz
+%dir %attr(0755,root,lp) %{_rundir}/cups
+%dir %attr(0511,lp,sys) %{_rundir}/cups/certs
 %dir %attr(0755,root,lp) %{_sysconfdir}/cups
-%dir %attr(0755,root,lp) %{_localstatedir}/run/cups
-%dir %attr(0511,lp,sys) %{_localstatedir}/run/cups/certs
-%{_tmpfilesdir}/cups.conf
-%{_tmpfilesdir}/cups-lp.conf
-%verify(not md5 size mtime) %config(noreplace) %attr(0640,root,lp) %{_sysconfdir}/cups/cupsd.conf
 %attr(0640,root,lp) %{_sysconfdir}/cups/cupsd.conf.default
+%verify(not md5 size mtime) %config(noreplace) %attr(0640,root,lp) %{_sysconfdir}/cups/cupsd.conf
 %verify(not md5 size mtime) %config(noreplace) %attr(0640,root,lp) %{_sysconfdir}/cups/cups-files.conf
 %attr(0640,root,lp) %{_sysconfdir}/cups/cups-files.conf.default
 %verify(not md5 size mtime) %config(noreplace) %attr(0644,root,lp) %{_sysconfdir}/cups/client.conf
@@ -235,92 +378,73 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %verify(not md5 size mtime) %config(noreplace) %attr(0644,root,lp) %{_sysconfdir}/cups/lpoptions
 %dir %attr(0755,root,lp) %{_sysconfdir}/cups/ppd
 %dir %attr(0700,root,lp) %{_sysconfdir}/cups/ssl
-%config(noreplace) %{_sysconfdir}/pam.d/cups
-%config(noreplace) %{_sysconfdir}/logrotate.d/cups
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/cups.conf
-
+%config(noreplace) %{_sysconfdir}/pam.d/cups
+%{_tmpfilesdir}/cups.conf
+%{_tmpfilesdir}/cups-lp.conf
+%attr(0644, root, root)%{_unitdir}/%{name}.service
+%attr(0644, root, root)%{_unitdir}/%{name}.socket
+%attr(0644, root, root)%{_unitdir}/%{name}.path
+ 
+%files client
+%{_bindir}/cancel*
+%{_bindir}/lp*
+%{_sbindir}/lpc.cups
+%{_mandir}/man1/cancel-cups.1.gz
+%{_mandir}/man1/lp*.1.gz
+%{_mandir}/man8/lpc-cups.8.gz
+ 
+%files libs
+%{license} LICENSE
+%{license} NOTICE
+%{_libdir}/libcups.so.2
+%{_libdir}/libcupsimage.so.2
+ 
+%files filesystem
+%dir %{cups_serverbin}
+%dir %{cups_serverbin}/backend
+%dir %{cups_serverbin}/driver
+%dir %{cups_serverbin}/filter
+%dir %{_datadir}/cups
 %dir %{_datadir}/cups/data
 %dir %{_datadir}/cups/drv
 %dir %{_datadir}/cups/mime
 %dir %{_datadir}/cups/model
 %dir %{_datadir}/cups/ppdc
 %dir %{_datadir}/ppd
-%exclude %{_mandir}/cat?
-%exclude %{_mandir}/*/cat?
-%exclude %{_datadir}/applications/cups.desktop
-%exclude %{_datadir}/icons
-%exclude %{_datadir}/cups/banners
-%exclude %{_datadir}/cups/data/testprint
-
-%{_unitdir}/%{name}.service
-%{_unitdir}/%{name}.socket
-%{_unitdir}/%{name}.path
-%{_unitdir}/cups-lpd.socket
-%{_unitdir}/cups-lpd@.service
-%{_bindir}/cupstestppd
-#%%{_bindir}/cupstestdsc
-%{_bindir}/ppd*
-%{_bindir}/cancel*
-%{_bindir}/lp*
-%{_bindir}/ipptool
+ 
+%files devel
+%{_bindir}/cups-config
+%{_includedir}/cups
+%{_libdir}/*.so
+%{_mandir}/man1/cups-config.1.gz
+%{_rpmconfigdir}/macros.d/macros.cups
+ 
+%files lpd
+%{cups_serverbin}/daemon/cups-lpd
+%{_mandir}/man8/cups-lpd.8.gz
+%attr(0644, root, root)%{_unitdir}/cups-lpd.socket
+%attr(0644, root, root)%{_unitdir}/cups-lpd@.service
+ 
+%files ipptool
 %{_bindir}/ippfind
+%{_bindir}/ipptool
+%dir %{_datadir}/cups/ipptool
+%{_datadir}/cups/ipptool/*
+%{_mandir}/man1/ipptool.1.gz
+%{_mandir}/man5/ipptoolfile.5.gz
+ 
+%files printerapp
 %{_bindir}/ippeveprinter
-%{_sbindir}/*
 %dir %{cups_serverbin}/command
 %{cups_serverbin}/command/ippevepcl
 %{cups_serverbin}/command/ippeveps
-
-%{_exec_prefix}/lib/cups/backend/*
-%{_exec_prefix}/lib/cups/cgi-bin
-%dir %{_exec_prefix}/lib/cups/driver
-%dir %{_exec_prefix}/lib/cups/daemon
-%{_exec_prefix}/lib/cups/daemon/cups-deviced
-%{_exec_prefix}/lib/cups/daemon/cups-driverd
-%{_exec_prefix}/lib/cups/daemon/cups-exec
-%{_exec_prefix}/lib/cups/notifier
-%{_exec_prefix}/lib/cups/filter/*
-%{_exec_prefix}/lib/cups/monitor
-%{_exec_prefix}/lib/cups/daemon/cups-lpd
-
-%{_datadir}/cups/templates/*.tmpl
-%{_datadir}/cups/templates/de/*.tmpl
-%{_datadir}/cups/templates/fr/*.tmpl
-%{_datadir}/cups/templates/es/*.tmpl
-%{_datadir}/cups/templates/ja/*.tmpl
-%{_datadir}/cups/templates/ru/*.tmpl
-%{_datadir}/cups/templates/pt_BR/*.tmpl
-%dir %attr(1770,root,lp) %{_localstatedir}/spool/cups/tmp
-%dir %attr(0710,root,lp) %{_localstatedir}/spool/cups
-%dir %attr(0755,root,lp) %{_localstatedir}/log/cups
-%{_datadir}/pixmaps/cupsprinter.png
-
-%{_datadir}/cups/drv/sample.drv
-%{_datadir}/cups/examples
-%{_datadir}/cups/mime/mime.types
-%{_datadir}/cups/mime/mime.convs
-%{_datadir}/cups/ppdc/*.defs
-%{_datadir}/cups/ppdc/*.h
-
-%{_datadir}/%{name}/www/images
-%{_datadir}/%{name}/www/*.css
-%dir %{_datadir}/%{name}/usb
-%{_datadir}/%{name}/usb/org.cups.usb-quirks
-%dir %{_datadir}/cups/ipptool
-%{_datadir}/cups/ipptool/*
-
-%files libs
-%{license} LICENSE NOTICE
-%{_libdir}/lib*.so.*
-
-%files devel
-%{_bindir}/cups-config
-%{_libdir}/*.so
-%{_includedir}/cups
-%{_rpmconfigdir}/macros.d/macros.cups
+%{_mandir}/man1/ippeveprinter.1.gz
+%{_mandir}/man7/ippevepcl.7.gz
+%{_mandir}/man7/ippeveps.7.gz
 
 %files help
 %{_mandir}/man[1578]/*
-
 %doc README.md CREDITS.md CHANGES.md
 %doc %{_datadir}/%{name}/www/index.html
 %doc %{_datadir}/%{name}/www/help
@@ -333,6 +457,9 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %doc %{_datadir}/%{name}/www/apple-touch-icon.png
 
 %changelog
+* Mon Nov 29 2021 hanhui <hanhui15@huawei.com> - 2.3.3op2-1
+- DESC:update to cups-2.3.3op2
+
 * Thu Nov 04 2021 wangkerong <wangkerong@huawei.com> - 2.3.3-8
 - Type:bugfix
 - ID:NA
@@ -404,3 +531,4 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 
 * Wed Sep 18 2019 Guan Yanjie <guanyanjie@huawei.com> - 2.2.8-6
 - Package init
+

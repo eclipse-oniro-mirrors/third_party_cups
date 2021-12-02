@@ -1,0 +1,13 @@
+diff --git a/scheduler/cups.service.in b/scheduler/cups.service.in
+index a3fa0e8..baff51b 100644
+--- a/scheduler/cups.service.in
++++ b/scheduler/cups.service.in
+@@ -1,7 +1,7 @@
+ [Unit]
+ Description=CUPS Scheduler
+ Documentation=man:cupsd(8)
+-After=network.target sssd.service ypbind.service nslcd.service
++After=network.target nss-user-lookup.target nslcd.service
+ Requires=cups.socket
+ 
+ [Service]
