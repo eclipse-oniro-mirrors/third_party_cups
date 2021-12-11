@@ -1,9 +1,8 @@
 %global cups_serverbin %{_exec_prefix}/lib/cups
-%global OP_VER op2
 
 Name:    cups
 Epoch:   1
-Version: 2.3.3%{OP_VER}
+Version: 2.4.0
 Release: 1
 Summary: CUPS is the standards-based, open source printing system for linux operating systems.
 License: GPLv2+ and LGPLv2+ with exceptions and AML
@@ -17,29 +16,13 @@ Source2: macros.cups
 Patch1:  cups-system-auth.patch
 Patch2:  cups-multilib.patch
 Patch3:  cups-banners.patch
-Patch4:  cups-no-export-ssllibs.patch
-Patch5:  cups-direct-usb.patch
-Patch6:  cups-driverd-timeout.patch
-Patch7:  cups-usb-paperout.patch
-Patch8:  cups-uri-compat.patch
-Patch9:  cups-freebind.patch
-Patch10: cups-ipp-multifile.patch
-Patch11: cups-web-devices-timeout.patch
-Patch12: cups-failover-backend.patch
-Patch13: cups-dymo-deviceid.patch
-Patch14: cups-logs.patch
-Patch15: backport-backend-usb-libusb.c-Use-60s-timeout-for-reading-at-.patch
-Patch16: cups-nssuserlookup-target.patch
-Patch17: backport-Retry-Validate-Job-once-if-needed-Issue-132.patch
-Patch18: backport-cups.service.in-Add-SYSTEMD_WANTED_BY-variable.patch
-Patch19: cups-cleanfiles.patch
-Patch20: backport-cgi-bin-ipp-var.c-Use-guest-user-for-Move-Job-when-n.patch
-Patch21: backport-scheduler-job.c-use-gziptoany-for-raw-files-not-just.patch
-Patch22: cups-restart-job-hold-until.patch
-Patch23: backport-cups-md5passwd.c-Stub-out-httpMD5-functions.patch
-Patch24: cups-deprecate-drivers.patch
-Patch25: cups-fstack-strong.patch
-Patch26: cups-lspp.patch
+Patch4:  cups-direct-usb.patch
+Patch5:  cups-driverd-timeout.patch
+Patch6:  cups-usb-paperout.patch
+Patch7:  cups-uri-compat.patch
+Patch8:  cups-freebind.patch
+Patch9:  cups-ipp-multifile.patch
+Patch10: cups-web-devices-timeout.patch
 
 BuildRequires: pam-devel pkgconf-pkg-config pkgconfig(gnutls) libacl-devel openldap-devel pkgconfig(libusb-1.0)
 BuildRequires: krb5-devel pkgconfig(avahi-client) systemd pkgconfig(libsystemd) pkgconfig(dbus-1) python3-cups
@@ -320,6 +303,8 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %{_datadir}/cups/templates/*.tmpl
 %dir %{_datadir}/cups/templates/de
 %{_datadir}/cups/templates/de/*.tmpl
+%dir %{_datadir}/cups/templates/da
+%{_datadir}/cups/templates/da/*.tmpl
 %dir %{_datadir}/cups/templates/es
 %{_datadir}/cups/templates/es/*.tmpl
 %dir %{_datadir}/cups/templates/fr
@@ -335,11 +320,10 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %dir %{_datadir}/%{name}/www
 %{_datadir}/%{name}/www/images
 %{_datadir}/%{name}/www/*.css
-# 1658673 - html files cannot be docs, because CUPS web ui will not have
-# introduction page on Fedora Docker image (because rpms are installed
-# without docs there because of space reasons)
 %dir %{_datadir}/%{name}/www/de
+%dir %{_datadir}/%{name}/www/da
 %dir %{_datadir}/%{name}/www/es
+%dir %{_datadir}/%{name}/www/fr
 %dir %{_datadir}/%{name}/www/ja
 %dir %{_datadir}/%{name}/www/pt_BR
 %dir %{_datadir}/%{name}/www/ru
@@ -419,6 +403,7 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %{_libdir}/*.so
 %{_mandir}/man1/cups-config.1.gz
 %{_rpmconfigdir}/macros.d/macros.cups
+%{_prefix}/lib/pkgconfig/cups.pc
  
 %files lpd
 %{cups_serverbin}/daemon/cups-lpd
@@ -450,13 +435,18 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 %doc %{_datadir}/%{name}/www/help
 %doc %{_datadir}/%{name}/www/robots.txt
 %doc %{_datadir}/%{name}/www/de/index.html
+%doc %{_datadir}/%{name}/www/da/index.html
 %doc %{_datadir}/%{name}/www/es/index.html
+%doc %{_datadir}/%{name}/www/fr/index.html
 %doc %{_datadir}/%{name}/www/ja/index.html
 %doc %{_datadir}/%{name}/www/ru/index.html
 %doc %{_datadir}/%{name}/www/pt_BR/index.html
 %doc %{_datadir}/%{name}/www/apple-touch-icon.png
 
 %changelog
+* Thu Sep 9 2021 hanhui <hanhui15@huawei.com> - 2.4.0-1
+- DESC:update to cups-2.4.0
+
 * Mon Nov 29 2021 hanhui <hanhui15@huawei.com> - 2.3.3op2-1
 - DESC:update to cups-2.3.3op2
 
@@ -531,4 +521,3 @@ rm -f %{_exec_prefix}/lib/cups/backend/smb
 
 * Wed Sep 18 2019 Guan Yanjie <guanyanjie@huawei.com> - 2.2.8-6
 - Package init
-
