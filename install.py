@@ -109,7 +109,8 @@ def do_patch(target_dir):
         "backport-sanitize-backend-ipp-attr-strings.patch",
         "backport-sanitize-fax-phone-option-values.patch",
         "backport-rangecheck-job-password-supported.patch",
-        "backport-guard-marker-types-trailing-dash.patch"
+        "backport-guard-marker-types-trailing-dash.patch",
+        "cups-ppd-media-auto-override.patch"
     ]
 
     for patch in patch_file:
