@@ -1,0 +1,67 @@
+diff --git a/cups/ppd-mark.c b/cups/ppd-mark.c
+index b44a523..9196778 100644
+--- a/cups/ppd-mark.c
++++ b/cups/ppd-mark.c
+@@ -50,7 +50,8 @@ cupsMarkOptions(
+     int           num_options,		/* I - Number of options */
+     cups_option_t *options)		/* I - Options */
+ {
+-  int		i, j;			/* Looping vars */
++  int		i, j,			/* Looping vars */
++		media_pos;		/* Media position */
+   char		*ptr,			/* Pointer into string */
+ 		s[255];			/* Temporary string */
+   const char	*val,			/* Pointer into value */
+@@ -112,7 +113,7 @@ cupsMarkOptions(
+     * the size.
+     */
+ 
+-    for (val = media; *val;)
++    for (val = media, media_pos = 0; *val;)
+     {
+      /*
+       * Extract the sub-option from the string...
+@@ -125,20 +126,32 @@ cupsMarkOptions(
+       if (*val == ',')
+ 	val ++;
+ 
++      media_pos ++;
++
+      /*
+-      * Mark it...
++      * Mark it by position. Framework concatenates the media string
++      * in fixed order: mediasize (default A4), mediatype (default
++      * stationery), inputslot. Position-based matching is safe and
++      * does not affect functionality.
+       */
+ 
+-      if (!_cups_strncasecmp(s, "Custom.", 7) && ppdPageSize(ppd, s))
+-	ppd_mark_option(ppd, "PageSize", s);
+-      else if ((ppd_keyword = _ppdCacheGetPageSize(cache, NULL, s, NULL)) != NULL)
+-	ppd_mark_option(ppd, "PageSize", ppd_keyword);
+-
+-      if (cache && cache->source_option && (ppd_keyword = _ppdCacheGetInputSlot(cache, NULL, s)) != NULL)
+-	ppd_mark_option(ppd, cache->source_option, ppd_keyword);
+-
+-      if ((ppd_keyword = _ppdCacheGetMediaType(cache, NULL, s)) != NULL)
+-	ppd_mark_option(ppd, "MediaType", ppd_keyword);
++      if (media_pos == 1)
++      {
++        if (!_cups_strncasecmp(s, "Custom.", 7) && ppdPageSize(ppd, s))
++          ppd_mark_option(ppd, "PageSize", s);
++        else if ((ppd_keyword = _ppdCacheGetPageSize(cache, NULL, s, NULL)) != NULL)
++          ppd_mark_option(ppd, "PageSize", ppd_keyword);
++      }
++      else if (media_pos == 2)
++      {
++        if ((ppd_keyword = _ppdCacheGetMediaType(cache, NULL, s)) != NULL)
++          ppd_mark_option(ppd, "MediaType", ppd_keyword);
++      }
++      else if (media_pos == 3)
++      {
++        if (cache && cache->source_option && (ppd_keyword = _ppdCacheGetInputSlot(cache, NULL, s)) != NULL)
++          ppd_mark_option(ppd, cache->source_option, ppd_keyword);
++      }
+     }
+   }
+ 
