@@ -1,9 +1,9 @@
 diff --git a/backend/usb_manager.cxx b/backend/usb_manager.cxx
 new file mode 100644
-index 0000000..b5e2ac4
+index 0000000..bbf6144
 --- /dev/null
 +++ b/backend/usb_manager.cxx
-@@ -0,0 +1,703 @@
+@@ -0,0 +1,702 @@
 +/*
 + * Copyright (c) 2024 Huawei Device Co., Ltd.
 + * Licensed under the Apache License, Version 2.0 (the "License");
@@ -322,7 +322,6 @@ index 0000000..b5e2ac4
 +        }
 +        std::wstring wstr(reinterpret_cast<wchar_t *>(wbuf.data()), payloadLen / 2);
 +        std::string buffer(wstr.begin(), wstr.end());
-+        fprintf(stderr, "DEBUG: OH_ControlTransferRead buffer = %s\n", buffer.c_str());
 +        if (memcpy_s(data, length, buffer.c_str(), buffer.length()) != 0) {
 +            fprintf(stderr, "DEBUG: OH_ControlTransferRead memcpy_s fail.\n");
 +            return OHUSB_ERROR_NO_MEM;
