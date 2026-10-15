@@ -276,7 +276,14 @@ action("cups_action") {
     "//third_party/cups/ohos-fix-classes-uaf.patch",
     "//third_party/cups/ohos-fix-ipp-no-members.patch",
     "//third_party/cups/ohos-fix-type-overread.patch",
-    "//third_party/cups/ohos-reduce-print-data-log.patch"
+    "//third_party/cups/ohos-reduce-print-data-log.patch",
+    "//third_party/cups/backport-CVE-2026-87875.patch",
+    "//third_party/cups/backport-CVE-2026-87876.patch",
+    "//third_party/cups/backport-CVE-2026-107655.patch",
+    "//third_party/cups/backport-CVE-2026-107885.patch",
+    "//third_party/cups/backport-CVE-2026-107886.patch",
+    "//third_party/cups/backport-CVE-2026-107888.patch",
+    "//third_party/cups/backport-CVE-2026-107890.patch",
   ]
   cups_src_dir = "//third_party/cups"
   foreach(file, outputs){

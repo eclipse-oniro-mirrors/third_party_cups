@@ -95,7 +95,14 @@ def do_patch(target_dir):
         "ohos-fix-classes-uaf.patch",
         "ohos-fix-ipp-no-members.patch",
         "ohos-fix-type-overread.patch",
-        "ohos-reduce-print-data-log.patch"
+        "ohos-reduce-print-data-log.patch",
+        "backport-CVE-2026-87875.patch",
+        "backport-CVE-2026-87876.patch",
+        "backport-CVE-2026-107655.patch",
+        "backport-CVE-2026-107885.patch",
+        "backport-CVE-2026-107886.patch",
+        "backport-CVE-2026-107888.patch",
+        "backport-CVE-2026-107890.patch",
     ]
 
     for patch in patch_file:
