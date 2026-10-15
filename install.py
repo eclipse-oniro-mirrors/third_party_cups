@@ -84,7 +84,14 @@ def do_patch(target_dir):
         "ohos-ipp-everywhere-color-fix.patch",
         "ohos-default-paper-size.patch",
         "ohos-cloud-pagesize-error-fix.patch",
-        "cups-log-datamasking.patch"
+        "cups-log-datamasking.patch",
+        "backport-CVE-2026-87875.patch",
+        "backport-CVE-2026-87876.patch",
+        "backport-CVE-2026-107655.patch",
+        "backport-CVE-2026-107885.patch",
+        "backport-CVE-2026-107886.patch",
+        "backport-CVE-2026-107888.patch",
+        "backport-CVE-2026-107890.patch",
     ]
 
     for patch in patch_file:
