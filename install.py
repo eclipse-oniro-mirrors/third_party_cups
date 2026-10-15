@@ -110,7 +110,14 @@ def do_patch(target_dir):
         "backport-sanitize-fax-phone-option-values.patch",
         "backport-rangecheck-job-password-supported.patch",
         "backport-guard-marker-types-trailing-dash.patch",
-        "cups-ppd-media-auto-override.patch"
+        "cups-ppd-media-auto-override.patch",
+        "backport-CVE-2026-87875.patch",
+        "backport-CVE-2026-87876.patch",
+        "backport-CVE-2026-107655.patch",
+        "backport-CVE-2026-107885.patch",
+        "backport-CVE-2026-107886.patch",
+        "backport-CVE-2026-107888.patch",
+        "backport-CVE-2026-107890.patch",
     ]
 
     for patch in patch_file:
