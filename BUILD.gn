@@ -268,6 +268,8 @@ action("cups_action") {
     "//third_party/cups/backport-CVE-2026-107886.patch",
     "//third_party/cups/backport-CVE-2026-107888.patch",
     "//third_party/cups/backport-CVE-2026-107890.patch",
+    "//third_party/cups/backport-CVE-2026-55480.patch",
+    "//third_party/cups/backport-CVE-2026-61702.patch",
   ]
   cups_src_dir = "//third_party/cups"
   foreach(file, outputs){
