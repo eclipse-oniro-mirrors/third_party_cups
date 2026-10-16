@@ -103,6 +103,8 @@ def do_patch(target_dir):
         "backport-CVE-2026-107886.patch",
         "backport-CVE-2026-107888.patch",
         "backport-CVE-2026-107890.patch",
+        "backport-CVE-2026-55480.patch",
+        "backport-CVE-2026-61702.patch",
     ]
 
     for patch in patch_file:
