@@ -1,9 +1,9 @@
 diff --git a/scheduler/hilog-helper.c b/scheduler/hilog-helper.c
 new file mode 100644
-index 00000000..9c1c832f
+index 0000000..a4bd430
 --- /dev/null
 +++ b/scheduler/hilog-helper.c
-@@ -0,0 +1,27 @@
+@@ -0,0 +1,61 @@
 +/*
 + * Copyright (c) 2024 Huawei Device Co., Ltd.
 + * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,19 +21,53 @@ index 00000000..9c1c832f
 +
 +#include "hilog-helper.h"
 +#include <stdarg.h>
++#include <stdio.h>
++#include <stdlib.h>
 +#include "hilog/log_c.h"
 +#include "string.h"
++
++static void maskSerialNumber(char *message)
++{
++    static const char serialDelims[] = "&\"') \n";
++    char *search = message;
++    char *pos;
++
++    while ((pos = strstr(search, "serial=")) != NULL) {
++        char *value = pos + sizeof("serial=") - 1;
++        size_t valueLen = strcspn(value, serialDelims);
++        size_t maskedLen = valueLen < 3 ? valueLen : 3;
++
++        if (valueLen > maskedLen) {
++            char *tail = value + valueLen;
++            memmove(value + maskedLen, tail, strlen(tail) + 1);
++        }
++        memset(value, '*', maskedLen);
++        search = value + maskedLen;
++    }
++}
 +
 +void hilogPrint(int level, const char *message)
 +{
 +    if (strstr(message, "auth-info") || strstr(message, "password")) {
 +        return;
 +    }
-+    HiLogPrint(LOG_CORE, LOG_DEBUG, 0xD0050B0, "cupslog", "%{public}s", message);
++    if (!strstr(message, "serial=")) {
++        HiLogPrint(LOG_CORE, LOG_DEBUG, 0xD0050B0, "cupslog", "%{public}s", message);
++        return;
++    }
++    size_t len = strlen(message);
++    char *buf = (char *)malloc(len + 1);
++    if (!buf) {
++        return;
++    }
++    memcpy(buf, message, len + 1);
++    maskSerialNumber(buf);
++    HiLogPrint(LOG_CORE, LOG_DEBUG, 0xD0050B0, "cupslog", "%{public}s", buf);
++    free(buf);
 +}
 diff --git a/scheduler/hilog-helper.h b/scheduler/hilog-helper.h
 new file mode 100644
-index 00000000..7baa4703
+index 0000000..7baa470
 --- /dev/null
 +++ b/scheduler/hilog-helper.h
 @@ -0,0 +1,16 @@
@@ -55,7 +89,7 @@ index 00000000..7baa4703
 +void hilogPrint(int level, const char *message);
 \ No newline at end of file
 diff --git a/scheduler/log.c b/scheduler/log.c
-index dbaa4a8f..30b9fc24 100644
+index d99accc..55952e7 100644
 --- a/scheduler/log.c
 +++ b/scheduler/log.c
 @@ -25,6 +25,7 @@
@@ -66,7 +100,7 @@ index dbaa4a8f..30b9fc24 100644
  
  
  /*
-@@ -1270,7 +1271,7 @@ cupsdWriteErrorLog(int        level,	/* I - Log level */
+@@ -1274,7 +1275,7 @@ cupsdWriteErrorLog(int        level,	/* I - Log level */
     /*
      * Write the log message...
      */
