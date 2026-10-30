@@ -85,6 +85,8 @@ def do_patch(target_dir):
         "ohos-default-paper-size.patch",
         "ohos-cloud-pagesize-error-fix.patch",
         "cups-log-datamasking.patch",
+        "backport-sanitize-backend-ipp-attr-strings.patch",
+        "backport-sanitize-fax-phone-option-values.patch",
         "backport-CVE-2026-87875.patch",
         "backport-CVE-2026-87876.patch",
         "backport-CVE-2026-107655.patch",
