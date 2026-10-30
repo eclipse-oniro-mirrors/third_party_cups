@@ -96,6 +96,8 @@ def do_patch(target_dir):
         "ohos-fix-ipp-no-members.patch",
         "ohos-fix-type-overread.patch",
         "ohos-reduce-print-data-log.patch",
+        "backport-sanitize-backend-ipp-attr-strings.patch",
+        "backport-sanitize-fax-phone-option-values.patch",
         "backport-CVE-2026-87875.patch",
         "backport-CVE-2026-87876.patch",
         "backport-CVE-2026-107655.patch",
