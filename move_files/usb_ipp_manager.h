@@ -82,6 +82,7 @@ public:
     bool DisConnectUsbPinter(const std::string& uri);
     bool ProcessMonitorPrinter(const std::string& uri, MonitorPrinterCallback callback);
     void SetTerminalSingal();
+    void SetPrintJobDataSent();
     bool IsUsbPrinterStateNormalIdle(const std::string& uri);
 private:
     IppUsbManager();
@@ -105,6 +106,7 @@ private:
 
     std::map<std::string, UsbPrinter> ippPrinterMap_;
     std::atomic<bool> isTerminated_;
+    std::atomic<bool> printJobDataSent_;
     std::mutex lock_;
 };
 } // namespace OHOS::CUPS

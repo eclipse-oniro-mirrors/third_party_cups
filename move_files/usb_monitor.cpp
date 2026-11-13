@@ -27,6 +27,23 @@ using namespace OHOS::CUPS;
 
 static IppUsbManager& usbManager = IppUsbManager::GetInstance();
 static std::pair<std::string, std::string> GetComparedStateReasons(const char* oldReasons, const char* newReasons);
+static bool g_monitorFailed = false; // backend is one job per process, no concurrency issue
+
+void SetMonitorJobFailed()
+{
+    g_monitorFailed = true;
+}
+
+bool IsMonitorJobFailed()
+{
+    return g_monitorFailed;
+}
+
+void SetPrintJobDataSent()
+{
+    fprintf(stderr, "DEBUG: USB_MONITOR enter SetPrintJobDataSent\n");
+    usbManager.SetPrintJobDataSent();
+}
 
 bool IsSupportIppOverUsb(const char* uri)
 {
