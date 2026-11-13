@@ -329,6 +329,33 @@ bool IppUsbManager::QueryPrinterStatus(const std::string& uri, PrinterStatus& pr
     return true;
 }
 
+IppUsbManager::MonitorVerdict IppUsbManager::CheckMonitorVerdict(const PrinterStatus& printerStatus,
+    int32_t& sentRounds, int32_t& cleanIdleCount, int32_t& faultCount)
+{
+    sentRounds++;
+    bool hasFault = (strcmp(printerStatus.printerStateReasons, "none") != 0);
+    if (sentRounds >= TOTAL_TIMEOUT_ROUNDS) {
+        fprintf(stderr, "DEBUG: USB_MONITOR monitor timeout after data sent, fault = %d\n", (int)hasFault);
+        return hasFault ? MonitorVerdict::FAULT : MonitorVerdict::TIMEOUT;
+    }
+    if (sentRounds < ARM_ROUNDS) {
+        return MonitorVerdict::CONTINUE;
+    }
+    cleanIdleCount = (!hasFault &&
+        printerStatus.printerState == IPP_PSTATE_IDLE) ? (cleanIdleCount + 1) : 0;
+    if (cleanIdleCount >= CONFIRM_ROUNDS) {
+        fprintf(stderr, "DEBUG: USB_MONITOR confirmed clean idle after data sent\n");
+        return MonitorVerdict::COMPLETED;
+    }
+    faultCount = hasFault ? (faultCount + 1) : 0;
+    if (faultCount >= CONFIRM_ROUNDS) {
+        fprintf(stderr, "DEBUG: USB_MONITOR confirmed printer fault: %s\n",
+            printerStatus.printerStateReasons);
+        return MonitorVerdict::FAULT;
+    }
+    return MonitorVerdict::CONTINUE;
+}
+
 bool IppUsbManager::ProcessMonitorPrinter(const std::string& uri, MonitorPrinterCallback callback)
 {
     constexpr uint32_t MAX_LOOP_TIME = 60 * 60 * 24 * 30; // 30 days
@@ -343,41 +370,23 @@ bool IppUsbManager::ProcessMonitorPrinter(const std::string& uri, MonitorPrinter
             break;
         }
         ReportPrinterState(isPrinterStarted, printerStatus, callback);
-        // printerStateReasons has been upgraded by SetPrinterStateReasons() inside
-        // ReportPrinterState(); any value other than "none" means the printer
-        // reported a problem, regardless of keyword or severity.
-        bool hasFault = (strcmp(printerStatus.printerStateReasons, "none") != 0);
-
-        // original exit condition: keeps the EPSON (IPP-visible) path unchanged
         if (isPrinterStarted && printerStatus.printerState == IPP_PSTATE_IDLE) {
             fprintf(stderr, "DEBUG: USB_MONITOR ProcessMonitorPrinter job is completed\n");
             return true;
         }
 
         if (!isPrinterStarted && printJobDataSent_.load()) {
-            sentRounds++;
-            // hard upper limit, never block pthread_join() forever
-            if (sentRounds >= TOTAL_TIMEOUT_ROUNDS) {
-                fprintf(stderr, "DEBUG: USB_MONITOR monitor timeout after data sent, fault = %d\n", (int)hasFault);
-                if (hasFault) SetMonitorJobFailed();
-                break;
-            }
-            if (sentRounds < ARM_ROUNDS) {
-                SaveIppUsbPrinterState(uri, printerStatus);
-                continue;
-            }
-            cleanIdleCount = (!hasFault &&
-                printerStatus.printerState == IPP_PSTATE_IDLE) ? (cleanIdleCount + 1) : 0;
-            if (cleanIdleCount >= CONFIRM_ROUNDS) {
-                fprintf(stderr, "DEBUG: USB_MONITOR confirmed clean idle after data sent\n");
+            MonitorVerdict verdict = CheckMonitorVerdict(printerStatus, sentRounds,
+                cleanIdleCount, faultCount);
+            if (verdict == MonitorVerdict::COMPLETED) {
                 return true;
             }
-            faultCount = hasFault ? (faultCount + 1) : 0;
-            if (faultCount >= CONFIRM_ROUNDS) {
-                fprintf(stderr, "DEBUG: USB_MONITOR confirmed printer fault: %s\n",
-                    printerStatus.printerStateReasons);
+            if (verdict == MonitorVerdict::FAULT) {
                 SetMonitorJobFailed();
                 return false;
+            }
+            if (verdict == MonitorVerdict::TIMEOUT) {
+                break;
             }
         }
         SaveIppUsbPrinterState(uri, printerStatus);
