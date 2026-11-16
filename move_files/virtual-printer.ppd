@@ -35,6 +35,15 @@
 *ImageableArea 16K/16K: "0 0 496 701"
 *ImageableArea 32K/32K: "0 0 350 496"
 
+*VariablePaperSize: Yes
+*ParamCustomPageSize Width: 1 points 14.17 2834.65
+*ParamCustomPageSize Height: 2 points 14.17 2834.65
+*ParamCustomPageSize WidthOffset: 3 points 8.40 8.40
+*ParamCustomPageSize HeightOffset: 4 points 8.40 8.40
+*ParamCustomPageSize Orientation: 5 int 0 0
+*CustomPageSize True: "pop pop pop <</PageSize[5 -2 roll]/ImagingBBox null>>setpagedevice"
+
+
 *DefaultPaperDimension: A4
 *PaperDimension A3/A3: "842 1191"
 *PaperDimension A4/A4: "595 842"
