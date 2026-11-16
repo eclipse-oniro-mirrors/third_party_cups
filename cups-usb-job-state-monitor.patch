@@ -52,7 +52,7 @@ index a4dfbc0..4e42b10 100644
 +    char* uri = (char*)arg;
 +    if (StartMonitorIppPrinter(UpdatePrinterState, uri)) {
 +        fprintf(stderr, "DEBUG: USB_MONITOR StartMonitorIppPrinter finished\n");
-+    } else {
++    } else if (!IsMonitorJobFailed()) {
 +        fprintf(stderr, "STATE: none\n");
 +    }
 +    free(uri);
@@ -80,7 +80,7 @@ index a4dfbc0..4e42b10 100644
   /*
    * Finally, send the print file...
    */
-@@ -245,5 +309,19 @@ main(int  argc,				/* I - Number of command-line arguments (6 or 7) */
+@@ -245,5 +309,17 @@ main(int  argc,				/* I - Number of command-line arguments (6 or 7) */
    if (print_fd != 0)
      close(print_fd);
  
@@ -92,9 +92,7 @@ index a4dfbc0..4e42b10 100644
 +    fprintf(stderr, "STATE: stopped\n");
 +}
 +if (isSupportIppOverUsb) {
-+    if (IsUsbPrinterStateNormalIdle(uri)) {
-+        SetTerminalSingal();
-+    }
++    SetPrintJobDataSent();
 +    pthread_join(monitorThread, NULL);
 +}
 +#endif /* HAVE_USB_MONITOR */

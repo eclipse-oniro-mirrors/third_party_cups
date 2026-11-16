@@ -59,9 +59,14 @@ static constexpr int32_t HTTP_COMMON_CONST_VALUE_500 = 500;
 static constexpr int32_t HTTP_COMMON_CONST_VALUE_100 = 100;
 static constexpr int32_t HTTP_COMMON_CONST_VALUE_2 = 2;
 static constexpr int32_t READ_BUFFER_SIZE = 512;
+constexpr int32_t ARM_ROUNDS = 5;
+constexpr int32_t CONFIRM_ROUNDS = 5;
+constexpr int32_t TOTAL_TIMEOUT_ROUNDS = 60;
+
 IppUsbManager::IppUsbManager()
 {
     isTerminated_.store(false);
+    printJobDataSent_.store(false);
 }
 
 IppUsbManager::~IppUsbManager()
@@ -300,36 +305,89 @@ void IppUsbManager::ReportPrinterState(bool& isPrinterStarted, PrinterStatus& pr
     }
 }
 
-bool IppUsbManager::ProcessMonitorPrinter(const std::string& uri, MonitorPrinterCallback callback)
+bool IppUsbManager::QueryPrinterStatus(const std::string& uri, PrinterStatus& printerStatus)
 {
     int32_t ret = 0;
+    int32_t writeDataRetryCount = 0;
+    do {
+        auto ippdata = BuildIppRequest();
+        ret = BulkTransferWrite(uri, ippdata);
+        if (ret == EORROR_HDF_DEV_ERR_TIME_OUT) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(USB_WRITE_INTERVAL));
+            writeDataRetryCount++;
+            fprintf(stderr, "DEBUG: USB_MONITOR retrwriteDataRetryCounty = %d fail\n", writeDataRetryCount);
+        }
+    } while (ret == EORROR_HDF_DEV_ERR_TIME_OUT && writeDataRetryCount < WRITE_RETRY_MAX_TIMES);
+    if (ret != UEC_OK) {
+        fprintf(stderr, "DEBUG: USB_MONITOR BulkTransferWrite fail, ret = %d\n", ret);
+        return false;
+    }
+    if (!ProcessDataFromDevice(uri, printerStatus)) {
+        fprintf(stderr, "DEBUG: USB_MONITOR ProcessDataFromDevice false\n");
+        return false;
+    }
+    return true;
+}
+
+IppUsbManager::MonitorVerdict IppUsbManager::CheckMonitorVerdict(const PrinterStatus& printerStatus,
+    int32_t& sentRounds, int32_t& cleanIdleCount, int32_t& faultCount)
+{
+    sentRounds++;
+    bool hasFault = (strcmp(printerStatus.printerStateReasons, "none") != 0);
+    if (sentRounds >= TOTAL_TIMEOUT_ROUNDS) {
+        fprintf(stderr, "DEBUG: USB_MONITOR monitor timeout after data sent, fault = %d\n", (int)hasFault);
+        return hasFault ? MonitorVerdict::FAULT : MonitorVerdict::TIMEOUT;
+    }
+    if (sentRounds < ARM_ROUNDS) {
+        return MonitorVerdict::CONTINUE;
+    }
+    cleanIdleCount = (!hasFault &&
+        printerStatus.printerState == IPP_PSTATE_IDLE) ? (cleanIdleCount + 1) : 0;
+    if (cleanIdleCount >= CONFIRM_ROUNDS) {
+        fprintf(stderr, "DEBUG: USB_MONITOR confirmed clean idle after data sent\n");
+        return MonitorVerdict::COMPLETED;
+    }
+    faultCount = hasFault ? (faultCount + 1) : 0;
+    if (faultCount >= CONFIRM_ROUNDS) {
+        fprintf(stderr, "DEBUG: USB_MONITOR confirmed printer fault: %s\n",
+            printerStatus.printerStateReasons);
+        return MonitorVerdict::FAULT;
+    }
+    return MonitorVerdict::CONTINUE;
+}
+
+bool IppUsbManager::ProcessMonitorPrinter(const std::string& uri, MonitorPrinterCallback callback)
+{
     constexpr uint32_t MAX_LOOP_TIME = 60 * 60 * 24 * 30; // 30 days
     bool isPrinterStarted = false;
+    int32_t sentRounds = -1;    // -1: print data not sent yet, >=0: rounds after data sent
+    int32_t cleanIdleCount = 0; // consecutive rounds of IDLE with no fault reasons
+    int32_t faultCount = 0;     // consecutive rounds with fault reasons
     for (uint32_t loopCount = 0; loopCount < MAX_LOOP_TIME && !isTerminated_.load(); loopCount++) {
         std::this_thread::sleep_for(std::chrono::seconds(INDEX_1));
-        int32_t writeDataRetryCount = 0;
-        do {
-            auto ippdata = BuildIppRequest();
-            ret = BulkTransferWrite(uri, ippdata);
-            if (ret == EORROR_HDF_DEV_ERR_TIME_OUT) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(USB_WRITE_INTERVAL));
-                writeDataRetryCount++;
-                fprintf(stderr, "DEBUG: USB_MONITOR retrwriteDataRetryCounty = %d fail\n", writeDataRetryCount);
-            }
-        } while (ret == EORROR_HDF_DEV_ERR_TIME_OUT && writeDataRetryCount < WRITE_RETRY_MAX_TIMES);
-        if (ret != UEC_OK) {
-            fprintf(stderr, "DEBUG: USB_MONITOR BulkTransferWrite fail, ret = %d\n", ret);
-            break;
-        }
         PrinterStatus printerStatus;
-        if (!ProcessDataFromDevice(uri, printerStatus)) {
-            fprintf(stderr, "DEBUG: USB_MONITOR ProcessDataFromDevice false\n");
+        if (!QueryPrinterStatus(uri, printerStatus)) {
             break;
         }
         ReportPrinterState(isPrinterStarted, printerStatus, callback);
         if (isPrinterStarted && printerStatus.printerState == IPP_PSTATE_IDLE) {
             fprintf(stderr, "DEBUG: USB_MONITOR ProcessMonitorPrinter job is completed\n");
             return true;
+        }
+
+        if (!isPrinterStarted && printJobDataSent_.load()) {
+            MonitorVerdict verdict = CheckMonitorVerdict(printerStatus, sentRounds,
+                cleanIdleCount, faultCount);
+            if (verdict == MonitorVerdict::COMPLETED) {
+                return true;
+            }
+            if (verdict == MonitorVerdict::FAULT) {
+                SetMonitorJobFailed();
+                return false;
+            }
+            if (verdict == MonitorVerdict::TIMEOUT) {
+                break;
+            }
         }
         SaveIppUsbPrinterState(uri, printerStatus);
     }
@@ -340,6 +398,11 @@ bool IppUsbManager::ProcessMonitorPrinter(const std::string& uri, MonitorPrinter
 void IppUsbManager::SetTerminalSingal()
 {
     isTerminated_.store(true);
+}
+
+void IppUsbManager::SetPrintJobDataSent()
+{
+    printJobDataSent_.store(true);
 }
 
 bool IppUsbManager::IsUsbPrinterStateNormalIdle(const std::string& uri)

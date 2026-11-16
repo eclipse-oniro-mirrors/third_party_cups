@@ -82,13 +82,18 @@ public:
     bool DisConnectUsbPinter(const std::string& uri);
     bool ProcessMonitorPrinter(const std::string& uri, MonitorPrinterCallback callback);
     void SetTerminalSingal();
+    void SetPrintJobDataSent();
     bool IsUsbPrinterStateNormalIdle(const std::string& uri);
 private:
+    enum class MonitorVerdict { CONTINUE, COMPLETED, FAULT, TIMEOUT };
     IppUsbManager();
     ~IppUsbManager();
 
     bool FindUsbPrinter(UsbDevice& device, const std::string& uri);
     bool ProcessDataFromDevice(const std::string& uri, PrinterStatus& printerStatus);
+    bool QueryPrinterStatus(const std::string& uri, PrinterStatus& printerStatus);
+    MonitorVerdict CheckMonitorVerdict(const PrinterStatus& printerStatus, int32_t& sentRounds,
+        int32_t& cleanIdleCount, int32_t& faultCount);
     int32_t BulkTransferRead(const std::string& uri, std::vector<uint8_t>& readTempBUffer);
     int32_t BulkTransferWrite(const std::string& uri, std::vector<uint8_t>& vectorRequestBuffer);
     bool AllocateInterface(const std::string &uri, UsbDevice& usbdevice,
@@ -105,6 +110,7 @@ private:
 
     std::map<std::string, UsbPrinter> ippPrinterMap_;
     std::atomic<bool> isTerminated_;
+    std::atomic<bool> printJobDataSent_;
     std::mutex lock_;
 };
 } // namespace OHOS::CUPS

@@ -38,6 +38,12 @@ bool IsSupportIppOverUsb(const char* uri);
 
 void SetTerminalSingal(void);
 
+void SetMonitorJobFailed(void);
+
+bool IsMonitorJobFailed(void);
+
+void SetPrintJobDataSent(void);
+
 void ComparePrinterStateReasons(const char* oldReasons, const char* newReasons,
     char** addedReasons, char** deletedReasons);
 
