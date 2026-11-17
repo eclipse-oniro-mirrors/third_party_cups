@@ -90,6 +90,7 @@ def do_patch(target_dir):
         "ohos-fix-buffer-overread.patch",
         "ohos-fix-job-uuid-heap-overflow.patch",
         "ohos-tls-openssl.patch",
+        "ohos-ipp-cert-trust.patch",
         "ohos-user-sensitive-options-env.patch",
         "ohos-fix-snmp-overread.patch",
         "ohos-fix-classes-uaf.patch",

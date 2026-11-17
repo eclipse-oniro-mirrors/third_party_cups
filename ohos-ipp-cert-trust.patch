@@ -1,0 +1,149 @@
+diff --git a/backend/ipp.c b/backend/ipp.c
+index 08a41efe..58b98fa0 100644
+--- a/backend/ipp.c
++++ b/backend/ipp.c
+@@ -832,13 +832,16 @@ main(int  argc,				/* I - Number of command-line args */
+ 
+     if (!httpCopyCredentials(http, &creds))
+     {
+-      trust = httpCredentialsGetTrust(creds, hostname);
++      // OHOS: Use the CUPS printer name (from PRINTER env var) as the trust key
++      // instead of hostname, so certificate trust survives IP address changes.
++      const char *printer_name = getenv("PRINTER");
++      trust = httpCredentialsGetTrust(creds, printer_name);
+       httpCredentialsString(creds, credinfo, sizeof(credinfo));
+ 
+       fprintf(stderr, "DEBUG: %s (%s)\n", trust_msgs[trust], cupsLastErrorString());
+       fprintf(stderr, "DEBUG: Printer credentials: %s\n", credinfo);
+ 
+-      if (!httpLoadCredentials(NULL, &lcreds, hostname))
++      if (!httpLoadCredentials(NULL, &lcreds, printer_name))
+       {
+         httpCredentialsString(lcreds, lcredinfo, sizeof(lcredinfo));
+ 	fprintf(stderr, "DEBUG: Stored credentials: %s\n", lcredinfo);
+@@ -861,7 +864,7 @@ main(int  argc,				/* I - Number of command-line args */
+         * can detect changes...
+         */
+ 
+-        httpSaveCredentials(NULL, creds, hostname);
++        httpSaveCredentials(NULL, creds, printer_name);
+       }
+ 
+       httpFreeCredentials(lcreds);
+diff --git a/cups/tls-openssl.c b/cups/tls-openssl.c
+index 9fcbe0af..e1592247 100644
+--- a/cups/tls-openssl.c
++++ b/cups/tls-openssl.c
+@@ -480,36 +480,10 @@ httpCredentialsGetTrust(
+ 
+     if (strcmp(credentials_str, tcreds_str))
+     {
+-      // Credentials don't match, let's look at the expiration date of the new
+-      // credentials and allow if the new ones have a later expiration...
+-      if (!cg->trust_first)
+-      {
+-        // Do not trust certificates on first use...
+-        _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("Trust on first use is disabled."), 1);
+-
+-        trust = HTTP_TRUST_INVALID;
+-      }
+-      else if (httpCredentialsGetExpiration(credentials) <= httpCredentialsGetExpiration(tcreds))
+-      {
+-        // The new credentials are not newly issued...
+-        _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("New credentials are older than stored credentials."), 1);
+-
+-        trust = HTTP_TRUST_INVALID;
+-      }
+-      else if (!httpCredentialsAreValidForName(credentials, common_name))
+-      {
+-        // The common name does not match the issued certificate...
+-        _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("New credentials are not valid for name."), 1);
+-
+-        trust = HTTP_TRUST_INVALID;
+-      }
+-      else if (httpCredentialsGetExpiration(tcreds) < time(NULL))
+-      {
+-        // Save the renewed credentials...
+-	trust = HTTP_TRUST_RENEWED;
+-
+-        httpSaveCredentials(NULL, credentials, common_name);
+-      }
++      // OHOS: Credentials mismatch — always stop and prompt user.
++      // Do not auto-trust renewed/changed certificates.
++      _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("Certificate has changed."), 1);
++      trust = HTTP_TRUST_INVALID;
+     }
+ 
+     httpFreeCredentials(tcreds);
+@@ -554,16 +528,15 @@ httpCredentialsGetTrust(
+     }
+   }
+ 
++  // OHOS: Detect expired certificates but still consider them trusted
++  // as long as the credentials string matches the stored credential.
+   if (trust == HTTP_TRUST_OK && !cg->expired_certs)
+   {
+     time_t	curtime;		// Current date/time
+ 
+     time(&curtime);
+     if (curtime < http_get_date(cert, 0) || curtime > http_get_date(cert, 1))
+-    {
+-      _cupsSetError(IPP_STATUS_ERROR_INTERNAL, _("Credentials have expired."), 1);
+-      trust = HTTP_TRUST_EXPIRED;
+-    }
++      fprintf(stderr, "DEBUG: OHOS: Certificate is expired but trusted (credentials matched).\n");
+   }
+ 
+   if (trust == HTTP_TRUST_OK && !cg->any_root && cupsArrayCount(credentials) == 1)
+@@ -1416,47 +1389,16 @@ http_default_path(
+     char   *buffer,			// I - Path buffer
+     size_t bufsize)			// I - Size of path buffer
+ {
+-  _cups_globals_t	*cg = _cupsGlobals();
+-					// Pointer to library globals
+-
+-
+-#ifdef _WIN32
+-  if (cg->home)
+-#else
+-  if (cg->home && getuid())
+-#endif // _WIN32
+-  {
+-    snprintf(buffer, bufsize, "%s/.cups", cg->home);
+-    if (access(buffer, 0))
+-    {
+-      DEBUG_printf(("1http_default_path: Making directory \"%s\".", buffer));
+-      if (mkdir(buffer, 0700))
+-      {
+-        DEBUG_printf(("1http_default_path: Failed to make directory: %s", strerror(errno)));
+-        return (NULL);
+-      }
+-    }
+-
+-    snprintf(buffer, bufsize, "%s/.cups/ssl", cg->home);
+-    if (access(buffer, 0))
+-    {
+-      DEBUG_printf(("1http_default_path: Making directory \"%s\".", buffer));
+-      if (mkdir(buffer, 0700))
+-      {
+-        DEBUG_printf(("1http_default_path: Failed to make directory: %s", strerror(errno)));
+-        return (NULL);
+-      }
+-    }
+-  }
+-  else
+-    strlcpy(buffer, CUPS_SERVERROOT "/ssl", bufsize);
++  // OHOS: always use CUPS_SERVERROOT/ssl for certificate storage,
++  // regardless of uid or HOME. The directory is created at boot by
++  // printservice.cfg with mode 0750 owned by print:print.
++  strlcpy(buffer, CUPS_SERVERROOT "/ssl", bufsize);
+ 
+   DEBUG_printf(("1http_default_path: Using default path \"%s\".", buffer));
+ 
+   return (buffer);
+ }
+ 
+-
+ //
+ // 'http_get_date()' - Get the notBefore or notAfter date of a certificate.
+ //
