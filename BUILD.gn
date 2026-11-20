@@ -271,6 +271,7 @@ action("cups_action") {
     "//third_party/cups/ohos-cloud-pagesize-error-fix.patch",
     "//third_party/cups/ohos-reduce-delete-time.patch",
     "//third_party/cups/ohos-tls-openssl.patch",
+    "//third_party/cups/ohos-ipp-cert-trust.patch",
     "//third_party/cups/ohos-user-sensitive-options-env.patch",
     "//third_party/cups/ohos-fix-snmp-overread.patch",
     "//third_party/cups/ohos-fix-classes-uaf.patch",
@@ -315,6 +316,7 @@ action("cups_action") {
     "//third_party/cups/backend/virtual-printer.ppd",
     "//third_party/cups/scheduler/datamasking.c",
   ]
+  inputs += [ "//third_party/cups/cups/tls-openssl.c" ]
 
   cups_path = rebase_path("${target_gen_dir}", root_build_dir)
   cups_source_path = rebase_path("//third_party/cups", root_build_dir)
