@@ -335,7 +335,7 @@ IppUsbManager::MonitorVerdict IppUsbManager::CheckMonitorVerdict(const PrinterSt
     sentRounds++;
     bool hasFault = (strcmp(printerStatus.printerStateReasons, "none") != 0);
     if (sentRounds >= TOTAL_TIMEOUT_ROUNDS) {
-        fprintf(stderr, "DEBUG: USB_MONITOR monitor timeout after data sent, fault = %d\n", (int)hasFault);
+        fprintf(stderr, "DEBUG: USB_MONITOR monitor timeout after data sent, fault = %d\n", static_cast<int>(hasFault));
         return hasFault ? MonitorVerdict::FAULT : MonitorVerdict::TIMEOUT;
     }
     if (sentRounds < ARM_ROUNDS) {
